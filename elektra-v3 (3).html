@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Elektra">
+<meta name="theme-color" content="#020617">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Elektra</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237c3aed'/><text y='.9em' font-size='60' x='50%' text-anchor='middle'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#020617;--bg2:#0f172a;--bg3:#1e293b;--border:#334155;--border2:#475569;--fg:#f8fafc;--fg2:#cbd5e1;--fg3:#94a3b8;--fg4:#64748b;--accent:#7c3aed;--accent2:#8b5cf6;--green:#22c55e;--rose:#f43f5e;--amber:#f59e0b;--radius:12px;--rsm:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Fira Sans',sans-serif;font-size:14px;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit;color:inherit}
+input,textarea,select{font-family:inherit;font-size:inherit;color:var(--fg);background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent2)}
+textarea{resize:vertical}
+
+/* LAYOUT */
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{width:215px;min-width:215px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform .3s}
+#main{flex:1;overflow-y:auto}
+.page{display:none;padding:28px 32px;max-width:1080px;animation:fadeUp .22s ease-out}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* SIDEBAR */
+.slogo{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.slogo .ico{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.slogo .ico svg{width:16px;height:16px;fill:white}
+nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rsm);color:var(--fg3);font-weight:500;font-size:13px;transition:all .15s;cursor:pointer}
+.ni:hover{color:var(--fg);background:var(--bg3)}
+.ni.active{background:var(--accent);color:white;box-shadow:0 4px 14px rgba(124,58,237,.3)}
+.ni svg{width:15px;height:15px;flex-shrink:0}
+.sfooter{padding:14px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--fg4);text-align:center}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.pt{font-size:22px;font-weight:700}
+.ps{font-size:13px;color:var(--fg4);margin-top:3px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--rsm);font-weight:600;font-size:13px;transition:all .15s;cursor:pointer;border:none}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.bp{background:var(--accent);color:white}.bp:hover{background:var(--accent2);box-shadow:0 4px 14px rgba(124,58,237,.4)}
+.bg{background:var(--bg3);color:var(--fg2);border:1px solid var(--border)}.bg:hover{border-color:var(--border2);color:var(--fg)}
+.bgr{background:var(--green);color:white;border:none}.bgr:hover{opacity:.9}
+.bsm{padding:6px 12px;font-size:12px}
+.bico{padding:7px;border-radius:var(--rsm);color:var(--fg3);transition:all .15s}.bico:hover{background:var(--bg3);color:var(--fg)}
+.bico svg{width:14px;height:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+
+/* FORM */
+.fg2c{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg2c .full{grid-column:span 2}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.fi{width:100%;padding:9px 12px;border-radius:var(--rsm);background:var(--bg3);border:1px solid var(--border);color:var(--fg)}
+.ft{width:100%;padding:9px 12px;border-radius:var(--rsm);background:var(--bg3);border:1px solid var(--border);color:var(--fg);min-height:72px}
+.fs{width:100%;padding:9px 12px;border-radius:var(--rsm);background:var(--bg3);border:1px solid var(--border);color:var(--fg)}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.sc .ico{width:34px;height:34px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.sc .ico svg{width:15px;height:15px}
+.sv{font-size:26px;font-weight:700;font-family:'Fira Code',monospace;line-height:1}
+.sl{font-size:12px;font-weight:600;color:var(--fg2);margin-top:4px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid transparent}
+.b-ideia{background:rgba(100,116,139,.15);color:#94a3b8;border-color:rgba(100,116,139,.3)}
+.b-prompt{background:rgba(56,189,248,.1);color:#38bdf8;border-color:rgba(56,189,248,.2)}
+.b-img{background:rgba(124,58,237,.15);color:#a78bfa;border-color:rgba(124,58,237,.3)}
+.b-vid{background:rgba(245,158,11,.12);color:#fbbf24;border-color:rgba(245,158,11,.25)}
+.b-rev{background:rgba(34,197,94,.1);color:#4ade80;border-color:rgba(34,197,94,.2)}
+.b-post{background:rgba(34,197,94,.2);color:#22c55e;border-color:rgba(34,197,94,.35)}
+.b-reel{background:rgba(124,58,237,.15);color:#c4b5fd;border-color:rgba(124,58,237,.2)}
+.b-story{background:rgba(244,63,94,.1);color:#fb7185;border-color:rgba(244,63,94,.2)}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:1}
+.mt{font-size:15px;font-weight:700}
+.mb{padding:24px}
+
+/* PILL TABS */
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.ptab{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid var(--border);color:var(--fg3);transition:all .15s;cursor:pointer}
+.ptab:hover{color:var(--fg);border-color:var(--border2)}
+.ptab.active{background:var(--accent);color:white;border-color:var(--accent)}
+
+/* EXPAND */
+.xbtn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;background:var(--bg2);border:none;cursor:pointer;color:var(--fg);transition:background .15s}
+.xbtn:hover{background:var(--bg3)}
+.xarr{width:16px;height:16px;transition:transform .2s;color:var(--fg4)}
+.xarr.open{transform:rotate(90deg)}
+
+/* SECTION BLOCK */
+.sb{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:14px;margin-top:10px}
+.sbh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--fg4)}
+.sbc{font-size:13px;color:var(--fg2);line-height:1.6;white-space:pre-wrap}
+.sb.pmt .sbc{font-family:'Fira Code',monospace;font-size:12px;color:#a78bfa;background:rgba(124,58,237,.08);padding:10px;border-radius:6px}
+
+/* SEARCH */
+.sbar{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 14px;margin-bottom:16px}
+.sbar svg{width:15px;height:15px;color:var(--fg4);flex-shrink:0}
+.sbar input{flex:1;background:none;border:none;color:var(--fg);font-size:13px;outline:none}
+.sbar input::placeholder{color:var(--fg4)}
+
+/* PROGRESS */
+.prb{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:6px}
+.prf{height:100%;background:var(--accent);border-radius:2px;transition:width .6s ease}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:#16a34a;color:white;padding:12px 18px;border-radius:var(--rsm);font-weight:600;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:slideIn .25s ease-out}
+@keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* CALENDAR */
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cday{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);min-height:150px;overflow:hidden}
+.cday.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.cdh{padding:10px 12px 8px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.cdl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--fg4)}
+.cday.today .cdl{color:var(--accent2)}
+.cdn{font-size:18px;font-weight:700;font-family:'Fira Code',monospace}
+.cday.today .cdn{color:var(--accent2)}
+.citems{padding:6px;display:flex;flex-direction:column;gap:3px}
+.citem{padding:4px 7px;border-radius:5px;font-size:10px;font-weight:500;border:1px solid transparent;cursor:pointer}
+.citem:hover{opacity:.8}
+.citem.reel{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.25);color:#c4b5fd}
+.citem.story{background:rgba(244,63,94,.1);border-color:rgba(244,63,94,.2);color:#fb7185}
+
+/* POV PREVIEW CARD */
+.pov-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.pov-card-inner{position:relative;background:#000;border-radius:var(--radius) var(--radius) 0 0;padding:20px;min-height:200px;display:flex;flex-direction:column;justify-content:flex-end}
+.pov-bg-hint{position:absolute;inset:0;background:linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.6));border-radius:var(--radius) var(--radius) 0 0}
+.pov-text{position:relative;z-index:1;font-size:22px;font-weight:800;color:white;text-align:center;line-height:1.25;text-shadow:0 2px 8px rgba(0,0,0,.8);font-family:'Fira Sans',sans-serif}
+.chat-bubble-wrap{position:relative;z-index:1;margin-top:12px}
+.chat-box{background:rgba(255,255,255,.97);border-radius:12px;padding:12px;font-size:11.5px;font-family:system-ui,sans-serif}
+.chat-msg{display:flex;flex-direction:column;margin-bottom:6px}
+.chat-msg:last-child{margin-bottom:0}
+.chat-msg .bubble{padding:6px 10px;border-radius:10px;max-width:80%;font-size:12px;line-height:1.4;color:#111}
+.chat-msg .time{font-size:9px;color:#999;margin-top:2px}
+.chat-msg.recv .bubble{background:#f0f0f0;align-self:flex-start;border-bottom-left-radius:3px}
+.chat-msg.recv .time{align-self:flex-start;padding-left:2px}
+.chat-msg.sent .bubble{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:3px}
+.chat-msg.sent .time{align-self:flex-end;text-align:right;padding-right:2px}
+.pov-footer{padding:12px 14px;background:var(--bg2);border-top:1px solid var(--border)}
+
+/* STATUS ROW */
+.strow{display:flex;flex-wrap:wrap;gap:6px}
+.stbtn{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--border);color:var(--fg4);cursor:pointer;transition:all .15s}
+.stbtn:hover{color:var(--fg);border-color:var(--border2)}
+.stbtn.on{background:var(--accent);color:white;border-color:var(--accent)}
+
+/* DIVIDER */
+.div{height:1px;background:var(--border);margin:18px 0}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 20px;text-align:center}
+.eico{width:48px;height:48px;background:var(--bg3);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.eico svg{width:22px;height:22px;opacity:.35}
+
+/* WEEK NAV */
+.wnav{display:flex;align-items:center;gap:10px}
+.wnav span{font-size:13px;font-weight:600;color:var(--fg2);min-width:180px;text-align:center}
+
+/* MOBILE */
+#mob-toggle{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);padding:8px;align-items:center;justify-content:center;cursor:pointer}
+#mob-toggle svg{width:18px;height:18px;color:var(--fg)}
+@media(max-width:768px){
+  #sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0}
+  .page{padding:16px;padding-top:60px}
+  .sgrid,.g2,.g3,.g4{grid-template-columns:1fr 1fr}
+  .cgrid{grid-template-columns:1fr}
+  .fg2c{grid-template-columns:1fr}
+  .fg2c .full{grid-column:span 1}
+  #mob-toggle{display:flex}
+}
+
+/* BANCO DE IDEIAS */
+.idea-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;cursor:pointer}
+.idea-card:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.idea-card.estrela{border-color:rgba(245,158,11,.4)}
+.idea-img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:var(--bg3)}
+.idea-img-placeholder{width:100%;aspect-ratio:9/16;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--fg4);font-size:12px}
+.idea-img-placeholder svg{width:28px;height:28px;opacity:.3}
+.idea-footer{padding:12px}
+.idea-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;margin-right:4px;margin-bottom:4px}
+.idea-tag.print{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.idea-tag.ref{background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.25)}
+.idea-tag.star{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.idea-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent2);background:rgba(124,58,237,.06)}
+.upload-zone svg{width:32px;height:32px;opacity:.35;margin-bottom:10px}
+.gen-idea-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);cursor:pointer;transition:all .15s}
+.gen-idea-badge:hover{background:rgba(245,158,11,.25)}
+@media(max-width:768px){.idea-grid{grid-template-columns:repeat(2,1fr)}}
+
+
+/* iOS PWA + SAFE AREAS */
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+body{
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+/* Prevent iOS bounce scroll on body but allow inner scroll */
+html{overflow:hidden;height:100%}
+#main{
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
+}
+/* Sidebar safe area */
+#sidebar{padding-top: var(--safe-top)}
+/* Bottom bar nav for mobile */
+#bottom-nav{
+  display:none;
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  padding:8px 4px;
+  padding-bottom: calc(8px + var(--safe-bottom));
+  z-index:300;
+  flex-direction:row;
+  justify-content:space-around;
+  align-items:center;
+}
+.bn-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 10px;border-radius:10px;
+  font-size:9px;font-weight:700;letter-spacing:.03em;
+  color:var(--fg4);transition:all .15s;cursor:pointer;
+  text-transform:uppercase;min-width:52px;
+}
+.bn-item svg{width:20px;height:20px}
+.bn-item.active{color:var(--accent2)}
+.bn-item.active svg{stroke:var(--accent2)}
+/* On mobile: hide sidebar, show bottom nav, adjust main */
+@media(max-width:768px){
+  #sidebar{display:none!important}
+  #mob-toggle{display:none!important}
+  #bottom-nav{display:flex}
+  #main{margin-left:0!important;padding-bottom:calc(70px + var(--safe-bottom))}
+  .page{padding:16px 14px;padding-top: calc(16px + var(--safe-top))}
+  /* Bigger tap targets on mobile */
+  .btn{min-height:44px}
+  .ni,.stbtn,.ptab{min-height:36px}
+  /* Full width cards on mobile */
+  .idea-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+  .cgrid{grid-template-columns:1fr}
+  .fg2c{grid-template-columns:1fr}
+  .fg2c .full{grid-column:span 1}
+  /* Modal full screen on mobile */
+  .moverlay{padding:0;align-items:flex-end}
+  .modal{border-radius:20px 20px 0 0;max-height:92vh;max-width:100%}
+  /* POV card full width */
+  .pov-card{max-width:100%!important}
+}
+/* Status bar spacer for standalone mode */
+@media all and (display-mode: standalone){
+  #main .page:first-child{padding-top: calc(20px + var(--safe-top))}
+}
+
+
+/* GALERIA MULTI-UPLOAD */
+.gal-dropzone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.gal-dropzone:hover,.gal-dropzone.drag{border-color:var(--accent2);background:rgba(124,58,237,.06)}
+.gal-dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.gal-item{position:relative;aspect-ratio:9/16;border-radius:var(--rsm);overflow:hidden;background:var(--bg3);cursor:pointer;border:1px solid var(--border)}
+.gal-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-item .gal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.gal-item:hover .gal-overlay{opacity:1}
+.gal-item .gal-del{background:var(--rose);color:white;border:none;border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer}
+.gal-item .gal-cat{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 10px;font-size:10px;font-weight:600;cursor:pointer}
+.gal-count{font-size:11px;color:var(--fg4);margin-top:8px}
+.cat-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cat-pill{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid var(--border);color:var(--fg3);cursor:pointer;transition:all .15s}
+.cat-pill:hover{color:var(--fg);border-color:var(--border2)}
+.cat-pill.on{background:var(--accent);color:white;border-color:var(--accent)}
+.gal-item .gal-star{position:absolute;top:6px;right:6px;font-size:16px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8))}
+.gal-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.gal-lightbox img{max-width:100%;max-height:90vh;border-radius:var(--rsm);object-fit:contain}
+.gal-lightbox-close{position:absolute;top:16px;right:16px;color:white;font-size:28px;cursor:pointer;font-weight:300;line-height:1;background:rgba(0,0,0,.5);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+
+/* ÁUDIOS EM ALTA */
+.audio-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s;display:flex;align-items:center;gap:14px}
+.audio-card:hover{border-color:var(--border2)}
+.audio-rank{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;font-family:'Fira Code',monospace;flex-shrink:0}
+.audio-info{flex:1;min-width:0}
+.audio-name{font-size:14px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audio-artist{font-size:12px;color:var(--fg4);margin-top:2px}
+.audio-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.audio-reels{font-size:11px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:99px}
+.audio-trend{font-size:11px;color:var(--fg4)}
+.audio-link{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rsm);background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.25);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;flex-shrink:0}
+.audio-link:hover{background:rgba(124,58,237,.25)}
+.audio-link svg{width:13px;height:13px}
+.audio-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:14px}
+.pulse-ring{width:48px;height:48px;border:3px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+.audio-updated{font-size:11px;color:var(--fg4);text-align:right;margin-bottom:10px}
+
+@media(max-width:768px){
+  .gal-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+}
+
+
+/* REFERÊNCIAS NO GERADOR */
+.ref-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:thin}
+.ref-strip::-webkit-scrollbar{height:4px}
+.ref-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.ref-thumb{position:relative;flex-shrink:0;width:64px;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .15s}
+.ref-thumb img{width:64px;height:96px;object-fit:cover;display:block}
+.ref-thumb.selected{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(139,92,246,.4)}
+.ref-thumb .ref-check{position:absolute;top:4px;right:4px;width:18px;height:18px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700}
+.ref-thumb.selected .ref-check{display:flex}
+.ref-label{font-size:9px;text-align:center;color:var(--fg4);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:64px}
+.ref-panel{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:var(--rsm);padding:12px;margin-top:12px}
+.ref-panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.ref-mini{width:48px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0}
+.ref-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.ref-row:last-child{border-bottom:none}
+
+
+/* CARDS DE EXECUÇÃO RÁPIDA */
+.exec-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.exec-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.exec-header .num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.exec-header .title{font-size:14px;font-weight:700;color:var(--fg);flex:1}
+.exec-header .cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px}
+.exec-steps{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.exec-step{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);overflow:hidden}
+.exec-step-header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.exec-step-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;color:white}
+.exec-step-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--fg3);flex:1}
+.exec-step-body{padding:10px 12px;font-size:13px;color:var(--fg2);line-height:1.6;white-space:pre-wrap}
+.exec-step-body.mono{font-family:'Fira Code',monospace;font-size:11px;color:#a78bfa;background:rgba(124,58,237,.06)}
+.exec-copy-bar{display:flex;align-items:center;justify-content:flex-end;padding:6px 10px;border-top:1px solid var(--border);gap:6px;background:var(--bg2)}
+.exec-copy-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;background:var(--bg3);color:var(--fg3);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.exec-copy-btn:hover{background:var(--accent);color:white;border-color:var(--accent)}
+.exec-copy-btn svg{width:12px;height:12px}
+.exec-pov-preview{background:#111;border-radius:10px;padding:16px;text-align:center;margin-bottom:4px}
+.exec-pov-text{font-size:18px;font-weight:800;color:white;line-height:1.3;text-shadow:0 2px 8px rgba(0,0,0,.8);margin-bottom:12px}
+.exec-chat-mini{background:rgba(255,255,255,.95);border-radius:8px;padding:10px;text-align:left}
+.exec-chat-mini .m{font-size:11px;padding:5px 8px;border-radius:8px;margin-bottom:4px;max-width:85%;display:block;color:#111;line-height:1.4}
+.exec-chat-mini .recv{background:#f0f0f0;align-self:flex-start}
+.exec-chat-mini .sent{background:#dcf8c6;margin-left:auto;text-align:right}
+.exec-chat-mini .sent-wrap,.exec-chat-mini .recv-wrap{display:flex;flex-direction:column}
+.exec-chat-mini .sent-wrap{align-items:flex-end}
+.exec-chat-mini .recv-wrap{align-items:flex-start}
+.exec-ref-img{width:56px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0}
+.exec-tab{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--border);overflow-x:auto}
+.exec-tab-btn{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--fg4);cursor:pointer;white-space:nowrap;transition:all .15s}
+.exec-tab-btn.on{background:var(--accent);color:white;border-color:var(--accent)}
+.stories-section{margin-top:20px;padding-top:16px;border-top:2px dashed var(--border)}
+
+</style>
+</head>
+<body>
+
+<button id="mob-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<div id="app">
+<aside id="sidebar">
+  <div class="slogo">
+    <div class="ico"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div><div style="font-weight:700;font-size:13px">Elektra</div><div style="font-size:11px;color:var(--fg4)">Content System</div></div>
+  </div>
+  <nav>
+    <div class="ni active" onclick="go('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </div>
+    <div class="ni" onclick="go('gerador')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerador Diário
+    </div>
+    <div class="ni" onclick="go('calendario')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendário
+    </div>
+    <div class="ni" onclick="go('biblioteca')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Biblioteca
+    </div>
+    <div class="ni" onclick="go('ideias')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Banco de Ideias
+    </div>
+    <div class="ni" onclick="go('galeria')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>Galeria
+    </div>
+    <div class="ni" onclick="go('audios')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Áudios em Alta
+    </div>
+    <div class="ni" onclick="go('persona')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Persona
+    </div>
+  </nav>
+  <div class="sfooter">G7 Soluções Digitais · v3.0</div>
+</aside>
+
+<main id="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="ph">
+    <div><div class="pt">Dashboard</div><div class="ps" id="d-date"></div></div>
+    <button class="btn bp" onclick="go('gerador')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gerar hoje
+    </button>
+  </div>
+  <div class="sgrid" id="d-stats"></div>
+  <div class="g2" style="margin-bottom:22px">
+    <div class="card"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--fg4);margin-bottom:14px">Pipeline de Status</div><div id="d-pipeline"></div></div>
+    <div class="card"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--fg4);margin-bottom:14px">Por Formato</div><div id="d-formats"></div></div>
+  </div>
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--fg4);margin-bottom:12px">Recentes</div>
+  <div class="g3" id="d-recent"></div>
+</div>
+
+<!-- GERADOR -->
+<div class="page" id="page-gerador">
+  <div class="ph">
+    <div><div class="pt">Gerador Diário</div><div class="ps">3 reels + 3 stories no formato POV/Situação + Print</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="fg2c">
+      <div>
+        <label class="fl">Persona</label>
+        <select class="fs" id="g-persona" onchange="updatePersonaInfo()"></select>
+      </div>
+      <div>
+        <label class="fl">Data de Agendamento</label>
+        <input type="date" class="fi" id="g-date">
+      </div>
+      <div>
+        <label class="fl">Tema do dia (opcional)</label>
+        <input type="text" class="fi" id="g-tema" placeholder="Ex: segunda-feira, relacionamentos, rotina de manhã...">
+      </div>
+      <div>
+        <label class="fl">Situação real pra misturar (opcional)</label>
+        <input type="text" class="fi" id="g-real" placeholder="Ex: minha amiga me mandou msg assim...">
+      </div>
+    </div>
+
+    <!-- Painel de referências da Galeria -->
+    <div id="g-ref-panel" style="display:none;margin-top:16px">
+      <div class="ref-panel">
+        <div class="ref-panel-title">
+          <span>📸 Fotos da Galeria — selecione as referências pra usar</span>
+          <span id="g-ref-count" style="font-weight:400;color:var(--fg4)"></span>
+        </div>
+        <div class="ref-strip" id="g-ref-strip"></div>
+        <div style="font-size:11px;color:var(--fg4);margin-top:4px">
+          As fotos selecionadas vão orientar o prompt de imagem e servir de base visual para os reels
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn bp" id="g-btn" onclick="generateDaily()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Gerar Conteúdo do Dia
+      </button>
+      <span id="g-info" style="font-size:12px;color:var(--fg4)"></span>
+    </div>
+  </div>
+  <div id="g-results"></div>
+</div>
+
+<!-- CALENDÁRIO -->
+<div class="page" id="page-calendario">
+  <div class="ph">
+    <div><div class="pt">Calendário</div><div class="ps">Visão semanal</div></div>
+    <div class="wnav">
+      <button class="btn bg bsm" onclick="prevWeek()">‹</button>
+      <span id="wlabel"></span>
+      <button class="btn bg bsm" onclick="nextWeek()">›</button>
+    </div>
+  </div>
+  <div class="cgrid" id="cal-grid"></div>
+</div>
+
+<!-- BIBLIOTECA -->
+<div class="page" id="page-biblioteca">
+  <div class="ph">
+    <div><div class="pt">Biblioteca</div><div class="ps" id="bib-count"></div></div>
+  </div>
+  <div class="sbar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="bib-q" placeholder="Buscar por situação, texto, print..." oninput="renderBib()">
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <select class="fs" id="bib-type" onchange="renderBib()" style="width:auto;padding:6px 10px;font-size:12px">
+      <option value="">Tipo: Todos</option><option value="reel">Reel</option><option value="story">Story</option>
+    </select>
+    <select class="fs" id="bib-status" onchange="renderBib()" style="width:auto;padding:6px 10px;font-size:12px">
+      <option value="">Status: Todos</option>
+      <option value="ideia">Ideia</option><option value="prompt_criado">Prompt Criado</option>
+      <option value="imagem_gerada">Imagem Gerada</option><option value="video_gerado">Vídeo Gerado</option>
+      <option value="revisado">Revisado</option><option value="postado">Postado</option>
+    </select>
+  </div>
+  <div id="bib-list"></div>
+</div>
+
+<!-- PERSONA -->
+<div class="page" id="page-persona">
+  <div class="ph">
+    <div><div class="pt">Persona</div><div class="ps">Configure a identidade visual e tom da persona</div></div>
+    <button class="btn bp" onclick="openPerModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Persona
+    </button>
+  </div>
+  <div id="per-list"></div>
+</div>
+
+<!-- BANCO DE IDEIAS -->
+<div class="page" id="page-ideias">
+  <div class="ph">
+    <div>
+      <div class="pt">Banco de Ideias</div>
+      <div class="ps" id="ideias-count">Prints e referências que funcionaram bem</div>
+    </div>
+    <button class="btn bp" onclick="openIdeiaModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar Ideia
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
+    <button class="ptab active" id="itab-all" onclick="setItab('all')">Todas</button>
+    <button class="ptab" id="itab-print" onclick="setItab('print')">🟢 Prints</button>
+    <button class="ptab" id="itab-ref" onclick="setItab('ref')">🔵 Referências</button>
+    <button class="ptab" id="itab-star" onclick="setItab('star')">⭐ Favoritas</button>
+    <div class="sbar" style="flex:1;min-width:200px;margin-bottom:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="ideias-q" placeholder="Buscar por situação, categoria..." oninput="renderIdeias()">
+    </div>
+  </div>
+
+  <!-- Aviso integração gerador -->
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--rsm);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:20px">💡</span>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#fbbf24">Integração ativa com o Gerador</div>
+      <div style="font-size:12px;color:var(--fg4);margin-top:2px">Ideias marcadas como ⭐ Favorita são usadas automaticamente pelo gerador para criar variações novas.</div>
+    </div>
+  </div>
+
+  <div class="idea-grid" id="ideias-grid"></div>
+</div>
+
+<!-- GALERIA -->
+<div class="page" id="page-galeria">
+  <div class="ph">
+    <div><div class="pt">Galeria</div><div class="ps" id="gal-count">Fotos e prints organizados</div></div>
+    <button class="btn bp" onclick="document.getElementById('gal-input-main').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar Fotos
+      <input type="file" id="gal-input-main" multiple accept="image/*" style="display:none" onchange="handleGalUpload(this)">
+    </button>
+  </div>
+
+  <!-- Drop zone -->
+  <div class="gal-dropzone" id="gal-drop"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="handleGalDrop(event)">
+    <input type="file" multiple accept="image/*" onchange="handleGalUpload(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.3;margin:0 auto 10px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+    <div style="font-size:14px;font-weight:600;color:var(--fg3)">Arraste até 20 fotos ou clique aqui</div>
+    <div style="font-size:12px;color:var(--fg4);margin-top:4px">JPG, PNG, WEBP — prints de conversa, poses, referências</div>
+  </div>
+
+  <!-- Filtros por categoria -->
+  <div class="cat-pills" id="gal-cats" style="margin-top:16px"></div>
+
+  <!-- Grid -->
+  <div class="gal-grid" id="gal-grid"></div>
+
+  <!-- Lightbox -->
+  <div class="gal-lightbox" id="gal-lightbox" style="display:none" onclick="closeLightbox()">
+    <div class="gal-lightbox-close" onclick="closeLightbox()">✕</div>
+    <img id="gal-lb-img" src="" alt="">
+  </div>
+</div>
+
+<!-- ÁUDIOS EM ALTA -->
+<div class="page" id="page-audios">
+  <div class="ph">
+    <div><div class="pt">Áudios em Alta</div><div class="ps">Trending no Instagram agora</div></div>
+    <button class="btn bp" id="audio-refresh-btn" onclick="buscarAudios()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px" id="audio-refresh-icon"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      Buscar Agora
+    </button>
+  </div>
+
+  <!-- Aviso sobre busca -->
+  <div style="background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.2);border-radius:var(--rsm);padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
+    <span style="font-size:18px;flex-shrink:0">ℹ️</span>
+    <div style="font-size:12px;color:var(--fg3);line-height:1.6">
+      A busca usa IA pra encontrar os áudios mais usados em reels no momento. 
+      Atualiza quando você clicar em <strong style="color:var(--fg2)">Buscar Agora</strong>. 
+      Os links levam direto pro Instagram pra você salvar o áudio.
+    </div>
+  </div>
+
+  <!-- Filtro de nicho -->
+  <div class="cat-pills" style="margin-bottom:16px">
+    <button class="cat-pill on" id="anic-todos" onclick="setAudioNicho('todos')">Todos</button>
+    <button class="cat-pill" id="anic-lifestyle" onclick="setAudioNicho('lifestyle')">Lifestyle</button>
+    <button class="cat-pill" id="anic-humor" onclick="setAudioNicho('humor')">Humor</button>
+    <button class="cat-pill" id="anic-motivacional" onclick="setAudioNicho('motivacional')">Motivacional</button>
+    <button class="cat-pill" id="anic-romantico" onclick="setAudioNicho('romantico')">Romântico</button>
+  </div>
+
+  <div id="audio-updated" class="audio-updated" style="display:none"></div>
+  <div id="audio-list"></div>
+</div>
+
+
+</main>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="moverlay" id="detail-modal" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="modal">
+    <div class="mh"><div><div class="mt" id="dm-title"></div><div style="margin-top:5px" id="dm-badges"></div></div>
+      <button class="bico" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="mb" id="dm-body"></div>
+  </div>
+</div>
+
+<!-- PERSONA MODAL -->
+<div class="moverlay" id="per-modal" style="display:none" onclick="if(event.target===this)closePerModal()">
+  <div class="modal">
+    <div class="mh"><div class="mt" id="per-modal-title">Nova Persona</div>
+      <button class="bico" onclick="closePerModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="mb">
+      <input type="hidden" id="per-id">
+      <div class="fg2c">
+        <div><label class="fl">Nome *</label><input class="fi" id="per-name" placeholder="Ex: Beatriz Santos"></div>
+        <div><label class="fl">Idade</label><input class="fi" id="per-age" placeholder="Ex: 22"></div>
+        <div><label class="fl">Nicho</label><input class="fi" id="per-niche" placeholder="Ex: Lifestyle / Rotina" value="Lifestyle / Rotina"></div>
+        <div><label class="fl">Cidade</label><input class="fi" id="per-city" placeholder="Ex: Rio de Janeiro"></div>
+        <div class="full"><label class="fl">Descrição Física (para prompts de imagem)</label>
+          <textarea class="ft" id="per-desc" rows="2" placeholder="Ex: jovem brasileira, cabelos loiros longos, pele clara, sorriso genuíno, corpo atlético"></textarea>
+        </div>
+        <div class="full"><label class="fl">Estilo Visual</label>
+          <textarea class="ft" id="per-style" rows="2" placeholder="Ex: minimalista moderno, tons neutros e bege, quarto bem decorado, roupas casuais elegantes"></textarea>
+        </div>
+        <div class="full"><label class="fl">Ambientes frequentes</label>
+          <input class="fi" id="per-envs" placeholder="Ex: quarto decorado, café, academia, shopping"></div>
+        <div class="full"><label class="fl">Tom de voz / personalidade</label>
+          <input class="fi" id="per-tone" placeholder="Ex: espontânea, engraçada, carinhosa, relatable"></div>
+        <div class="full"><label class="fl">Palavras/frases que ela usa</label>
+          <input class="fi" id="per-words" placeholder="Ex: miga, né, kkk, literalmente, nossa..."></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn bp" onclick="savePer()">Salvar Persona</button>
+        <button class="btn bg" onclick="closePerModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- IDEIA MODAL -->
+<div class="moverlay" id="ideia-modal" style="display:none" onclick="if(event.target===this)closeIdeiaModal()">
+  <div class="modal" style="max-width:560px">
+    <div class="mh">
+      <div class="mt" id="ideia-modal-title">Nova Ideia</div>
+      <button class="bico" onclick="closeIdeiaModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="mb">
+      <input type="hidden" id="ideia-id">
+
+      <!-- Tipo -->
+      <div style="margin-bottom:16px">
+        <label class="fl">Tipo de Ideia</label>
+        <div style="display:flex;gap:8px">
+          <button id="tipo-print" class="btn bp" style="flex:1" onclick="setIdeaTipo('print')">🟢 Print de Conversa</button>
+          <button id="tipo-ref" class="btn bg" style="flex:1" onclick="setIdeaTipo('ref')">🔵 Referência / Link</button>
+        </div>
+      </div>
+
+      <!-- Upload de print -->
+      <div id="area-print">
+        <label class="fl">Print da Conversa ou Reel</label>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDrop(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div style="font-size:13px;font-weight:600;color:var(--fg3)">Clique ou arraste o print aqui</div>
+          <div style="font-size:11px;color:var(--fg4);margin-top:4px">JPG, PNG, WEBP</div>
+          <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+        </div>
+        <div id="img-preview" style="margin-top:10px;display:none">
+          <img id="img-preview-el" style="max-width:100%;max-height:280px;border-radius:var(--rsm);object-fit:contain">
+          <button class="btn bg bsm" style="margin-top:8px" onclick="clearImg()">✕ Remover imagem</button>
+        </div>
+      </div>
+
+      <!-- Link de referência -->
+      <div id="area-ref" style="display:none">
+        <label class="fl">Link do Perfil ou Reel de Referência</label>
+        <input class="fi" id="ideia-link" placeholder="https://instagram.com/... ou qualquer link">
+        <div style="margin-top:8px;font-size:11px;color:var(--fg4)">Cole o link de um perfil ou reel que você quer usar como referência de estilo</div>
+      </div>
+
+      <!-- Campos comuns -->
+      <div style="margin-top:16px">
+        <label class="fl">Situação / POV <span style="color:var(--fg4);font-weight:400;text-transform:none">(o que aparece no topo do vídeo)</span></label>
+        <input class="fi" id="ideia-situacao" placeholder='Ex: "Quando minha amiga some por 3 semanas e aparece como se nada..."'>
+      </div>
+      <div style="margin-top:12px">
+        <label class="fl">Categoria</label>
+        <select class="fs" id="ideia-cat">
+          <option value="amizade">Amizade</option>
+          <option value="rotina">Rotina</option>
+          <option value="humor">Humor</option>
+          <option value="crush">Crush</option>
+          <option value="familia">Família</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div style="margin-top:12px">
+        <label class="fl">Observações <span style="color:var(--fg4);font-weight:400;text-transform:none">(por que funcionou? o que pode adaptar?)</span></label>
+        <textarea class="ft" id="ideia-obs" rows="3" placeholder="Ex: Esse formato de print com resposta rápida e emoji final engaja muito. Testar variação com a Beatriz no quarto..."></textarea>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--fg2)">
+          <input type="checkbox" id="ideia-star" style="width:16px;height:16px;accent-color:var(--amber)">
+          <span>⭐ Marcar como favorita <span style="color:var(--fg4);font-size:11px">(o gerador vai usar essa ideia)</span></span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn bp" onclick="saveIdeia()">Salvar Ideia</button>
+        <button class="btn bg" onclick="closeIdeiaModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✓ Copiado!</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────────
+const S = { personas:[], contents:[], week: new Date(), page:'dashboard' };
+
+/* save() defined below */
+/* load() defined below */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+/* go() defined below */
+/* render() defined below */
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return(s||'').replace(/'/g,'&#39;').replace(/\n/g,'\\n')}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function today(){return new Date().toISOString().split('T')[0]}
+function fmtDate(d){return new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}
+function slabel(s){return{ideia:'Ideia',prompt_criado:'Prompt Criado',imagem_gerada:'Imagem Gerada',video_gerado:'Vídeo Gerado',revisado:'Revisado',postado:'Postado ✓'}[s]||s}
+function sclass(s){return{ideia:'b-ideia',prompt_criado:'b-prompt',imagem_gerada:'b-img',video_gerado:'b-vid',revisado:'b-rev',postado:'b-post'}[s]||'b-ideia'}
+async function copy(t){await navigator.clipboard.writeText(t).catch(()=>{});toast('Copiado!')}
+function toast(m='Copiado!'){const t=document.getElementById('toast');t.textContent='✓ '+m;t.style.display='block';setTimeout(()=>t.style.display='none',2000)}
+function svgCopy(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`}
+function svgDel(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2,2H8a2 2 0 01-2-2L5,6"/><path d="M10 11v6M14 11v6"/></svg>`}
+
+// ─── MOTOR DE CONTEÚDO POV ───────────────────────────────────────────────────
+
+// Situações base para REEL
+const REEL_POVS = [
+  // Amizade
+  {sit:'Quando minha amiga aparece na minha casa sem avisar:',cat:'Amizade',chat:[{t:'recv',m:'Tô na porta'},{t:'sent',m:'???'},{t:'recv',m:'Abre logo'},{t:'sent',m:'Eu to deitada miga 😭'},{t:'recv',m:'E daí kkk'}]},
+  {sit:'Quando a minha melhor amiga some 3 semanas e aparece como se nada tivesse acontecido:',cat:'Amizade',chat:[{t:'recv',m:'Oi sumida'},{t:'sent',m:'Oi!! nossa sumi mesmo né kkk'},{t:'recv',m:'Você tá bem??'},{t:'sent',m:'Sim!! saudade de você 🥺'},{t:'recv',m:'Eu precisei de você e você sumiu'}]},
+  {sit:'Quando minha amiga me manda o problema dela às 2 da manhã:',cat:'Amizade',chat:[{t:'recv',m:'Você tá acordada?'},{t:'sent',m:'Tava dormindo mas pode falar'},{t:'recv',m:'Ele me ignorou de novo'},{t:'sent',m:'Juro que vou matar ele'},{t:'recv',m:'Você é melhor amiga de todas 😭❤️'}]},
+  {sit:'Quando a minha amiga me manda áudio de 7 minutos:',cat:'Amizade',chat:[{t:'recv',m:'🎤 7:23'},{t:'sent',m:'Miga eu tô no trabalho'},{t:'recv',m:'Escuta depois é URGENTE'},{t:'sent',m:'Urgente como??'},{t:'recv',m:'Olha o que ele me mandou...'}]},
+  {sit:'POV: sua amiga te ligou chorando e você chegou em 10 minutos:',cat:'Amizade',chat:[{t:'recv',m:'Posso te ligar?'},{t:'sent',m:'Claro, to aqui'},{t:'recv',m:'[Ligação 00:47]'},{t:'sent',m:'Já tô indo aí'},{t:'recv',m:'Você não precisava vir 😭'},{t:'sent',m:'Cala boca, abra a porta'}]},
+  // Rotina / dia a dia
+  {sit:'Quando coloco alarme pra acordar cedo e nego com o próprio alarme:',cat:'Rotina',chat:[{t:'recv',m:'⏰ 06:00 - Acordar'},{t:'sent',m:'Adiar - 9 min'},{t:'recv',m:'⏰ 06:09 - Acordar'},{t:'sent',m:'Adiar - 9 min'},{t:'recv',m:'⏰ 09:00 - VOCÊ VAI SE ATRASAR'}]},
+  {sit:'Eu pra mim mesma quando prometo que vou dormir cedo:',cat:'Rotina',chat:[{t:'recv',m:'Você'},{t:'sent',m:'Vou dormir às 22h hoje, sério'},{t:'recv',m:'Você (01:47)'},{t:'sent',m:'Mais um vídeo'},{t:'recv',m:'Você (03:12)'},{t:'sent',m:'Só mais esse'}]},
+  {sit:'Quando você faz uma lista de coisas pra fazer e não faz nenhuma:',cat:'Rotina',chat:[{t:'recv',m:'Lista de hoje:'},{t:'sent',m:'✅ Acordar cedo'},{t:'recv',m:'❌ Academia'},{t:'sent',m:'❌ Estudar'},{t:'recv',m:'✅ Comer'},{t:'sent',m:'✅ Dormir'}]},
+  {sit:'Quando minha mãe me manda mensagem e eu demoro pra responder:',cat:'Rotina',chat:[{t:'recv',m:'Oi filha'},{t:'recv',m:'Tá bem?'},{t:'recv',m:'Me responde'},{t:'recv',m:'Tô preocupada'},{t:'sent',m:'Oi mãe tava dormindo kkk'},{t:'recv',m:'Meia hora de leitura e vai responder agora'}]},
+  // Relacionamento / crush
+  {sit:'Quando você manda mensagem pro crush e ele deixa no visto:',cat:'Crush',chat:[{t:'sent',m:'Oi, tudo bem?'},{t:'recv',m:'✓✓ Lido 19:43'},{t:'sent',m:'...'},{t:'recv',m:'...'},{t:'sent',m:'(deletada)'}]},
+  {sit:'Quando você tá tentando não pensar nele e ele aparece online:',cat:'Crush',chat:[{t:'recv',m:'🟢 Online agora'},{t:'sent',m:'Não vou mandar mensagem'},{t:'recv',m:'🟢 Online agora'},{t:'sent',m:'Não vou'},{t:'recv',m:'🟢 Online agora'},{t:'sent',m:'Oi 👋'}]},
+  {sit:'Quando ele responde depois de 3 dias como se nada tivesse acontecido:',cat:'Crush',chat:[{t:'sent',m:'Oi, tudo bem?'},{t:'recv',m:'✓✓ Lido'},{t:'recv',m:'(3 dias depois)'},{t:'recv',m:'Oi!! Tava sem internet'},{t:'sent',m:'Ah tá 😊'},{t:'sent',m:'(por dentro: mentira)'}]},
+  // Humor
+  {sit:'Quando você chega no restaurante com fome e olha o cardápio:',cat:'Humor',chat:[{t:'sent',m:'Eu: vou pedir uma coisa simples'},{t:'recv',m:'Garçom: nossa porção de batata frita com queijo bacon'},{t:'sent',m:'Pode trazer duas'}]},
+  {sit:'Eu indo dormir vs eu às 2h no celular:',cat:'Humor',chat:[{t:'recv',m:'22:00 - Eu'},{t:'sent',m:'Vou dormir cedo hoje 💪'},{t:'recv',m:'02:47 - Eu'},{t:'sent',m:'Espera, mas qual era o nome daquela atriz mesmo?'},{t:'recv',m:'03:15 - Eu'},{t:'sent',m:'Terminei de ver o filme todo'}]},
+  {sit:'Quando você faz dieta durante 3 horas:',cat:'Humor',chat:[{t:'recv',m:'09:00'},{t:'sent',m:'Hoje começo a dieta 💪🥗'},{t:'recv',m:'12:00'},{t:'sent',m:'Só hoje pode né'},{t:'recv',m:'Amiga'},{t:'sent',m:'Trouxe pizza'}]},
+];
+
+// Situações base para STORY
+const STORY_POVS = [
+  {sit:'vocês também ou só eu?',cat:'Enquete',format:'enquete',pergunta:'Você também faz isso?',opt1:'Demais 😭',opt2:'Não né kkk'},
+  {sit:'coisas que eu faço que envergonham minha família:',cat:'Humor',format:'lista',itens:['dormir até meio dia no fim de semana','comer na cama','responder todo mundo com "kkk"','assistir série pela 4ª vez']},
+  {sit:'meu humor hoje:',cat:'Dia a dia',format:'enquete',pergunta:'Como tá seu dia?',opt1:'Ótimo 🌟',opt2:'Sobrevivendo 💀'},
+  {sit:'coisas que faço quando tô ansiosa:',cat:'Saúde mental',format:'lista',itens:['checar o celular a cada 5 minutos','comer sem fome','maratonar série','mandar mensagem pra todo mundo']},
+  {sit:'red flags que eu ignoro em mim mesma:',cat:'Humor',format:'lista',itens:['dormir às 3h e achar que vou acordar bem','fazer planos pra "amanhã"','prometer que vou estudar depois','dizer "tô indo" 40 minutos antes de sair']},
+  {sit:'pergunta do dia 👇',cat:'Interação',format:'enquete',pergunta:'Você se considera organizada?',opt1:'Sim, bem 😇',opt2:'Total bagunça 😅'},
+  {sit:'coisas que qualquer menina entende:',cat:'Relatable',format:'lista',itens:['ter 47 abas abertas','guardar embalagem bonita pra usar "algum dia"','mandar áudio longo e depois resumir tudo','checar stories do ex na conta fake']},
+  {sit:'como me sinto nas diferentes horas do dia:',cat:'Humor',format:'lista',itens:['8h: vou ser produtiva hoje','10h: só mais 5 minutos','13h: tô cansada','23h: agora me deu energia']},
+];
+
+
+
+function genStoryContent(persona, idx, refImg){
+  const s = STORY_POVS[idx % STORY_POVS.length];
+  const legenda = s.format==='enquete'
+    ? `${s.sit}\n\nvota aí 👇\n\n#lifestyle #rotina #stories`
+    : `${s.sit}\n\n${(s.itens||[]).map(i=>'➡️ '+i).join('\n')}\n\nse identifica?? 😂`;
+
+  return {
+    id:uid(), content_type:'story', category: s.cat,
+    ref_img: refImg ? refImg.img : null,
+    title: s.sit.substring(0,60),
+    situacao: s.sit,
+    format: s.format,
+    story_data: JSON.stringify(s),
+    legenda,
+    cta: s.format==='enquete' ? 'Vota aí!' : 'Responde aqui! 👇',
+    prompt_img: `Instagram story 9:16, ${persona.desc}, ${persona.style}, ${s.cat.toLowerCase()} mood, overlay text background, lifestyle aesthetic, warm tones, authentic`,
+    status:'ideia', scheduled_date:'', created_at:new Date().toISOString()
+  };
+}
+
+// ─── GERADOR ─────────────────────────────────────────────────────────────────
+let lastGen = [];
+
+/* renderGerador() defined below */
+
+function updatePersonaInfo(){
+  const p = S.personas.find(x=>x.id===document.getElementById('g-persona')?.value);
+  const el = document.getElementById('g-info');
+  if(el && p) el.textContent = `${p.niche} · ${p.city||''}`;
+}
+
+// Referências selecionadas na galeria
+let _selectedRefs = [];
+
+function toggleRef(id){
+  const idx = _selectedRefs.indexOf(id);
+  if(idx>=0) _selectedRefs.splice(idx,1); else _selectedRefs.push(id);
+  // Atualiza visual
+  document.querySelectorAll('.ref-thumb').forEach(el=>{
+    el.classList.toggle('selected', _selectedRefs.includes(el.dataset.id));
+  });
+  const count = document.getElementById('g-ref-count');
+  if(count) count.textContent = _selectedRefs.length>0 ? _selectedRefs.length+' selecionada'+(_selectedRefs.length>1?'s':'') : '';
+}
+
+function getSelectedRefs(){
+  return _selectedRefs.map(id=>S.galeria.find(g=>g.id===id)).filter(Boolean);
+}
+
+function buildRefPromptSuffix(refs){
+  if(!refs.length) return '';
+  const cats = [...new Set(refs.map(r=>r.cat))].join(', ');
+  return ', inspired by photos of a young Brazilian woman in ' + cats + ' setting, same lighting style and aesthetic as reference images';
+}
+
+function buildRefPOVs(refs){
+  // Extrai situações das ideias do banco que tenham imagem, ou usa categoria da foto
+  return refs.map(r=>{
+    // Tenta achar ideia no banco com mesma imagem
+    const idea = S.ideias.find(i=>i.img===r.img && i.situacao);
+    if(idea) return idea.situacao;
+    // Senão gera POV baseado na categoria da foto
+    const catPovs = {
+      amizade: 'Quando minha amiga aparece sem avisar:',
+      rotina: 'Minha rotina de manhã na realidade:',
+      humor: 'Quando eu prometi que ia dormir cedo:',
+      crush: 'Quando ele deixa no visto de novo:',
+      família: 'Quando minha mãe manda mensagem:',
+      referência: 'POV: vivendo meu melhor momento:',
+      pose: 'Esse foi o dia que eu decidi mudar:',
+    };
+    return catPovs[r.cat] || 'POV: ela sendo ela mesma:';
+  });
+}
+
+function generateDaily(){
+  const pid = document.getElementById('g-persona').value;
+  const p = S.personas.find(x=>x.id===pid);
+  if(!p){toast('Crie uma persona primeiro!');return;}
+  const date = document.getElementById('g-date').value;
+  const tema = document.getElementById('g-tema').value;
+  const real = document.getElementById('g-real').value;
+  const refs = getSelectedRefs();
+  const btn = document.getElementById('g-btn');
+  btn.disabled=true;
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0"/></svg> Gerando...`;
+
+  setTimeout(()=>{
+    // POVs extraídos das referências da galeria
+    const refPOVs = buildRefPOVs(refs);
+    const refSuffix = buildRefPromptSuffix(refs);
+
+    const reels = [0,1,2].map(i=>({
+      ...genReelContent(p, i, tema, real, refPOVs[i]||null, refSuffix, refs[i]||null),
+      scheduled_date: date
+    }));
+    const stories = [0,1,2].map(i=>({
+      ...genStoryContent(p, i, refs[i]||null),
+      scheduled_date: date
+    }));
+    lastGen = [...reels,...stories];
+    btn.disabled=false;
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Gerar Conteúdo do Dia`;
+    renderGenResults();
+  },600);
+}
+
+function renderGenResults(){
+  if(!lastGen.length){document.getElementById('g-results').innerHTML='';return;}
+  const saved = lastGen.every(i=>S.contents.find(c=>c.id===i.id));
+  const reels  = lastGen.filter(i=>i.content_type==='reel');
+  const stories= lastGen.filter(i=>i.content_type==='story');
+
+  document.getElementById('g-results').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--fg)">${lastGen.length} conteúdos prontos</div>
+        <div style="font-size:12px;color:var(--fg4);margin-top:2px">Copie cada passo e execute em ordem no Kling + CapCut</div>
+      </div>
+      <button class="btn ${saved?'bg':'bgr'}" onclick="saveAll()" ${saved?'disabled':''}>
+        ${saved?'✓ Salvo na Biblioteca':'💾 Salvar Tudo'}
+      </button>
+    </div>
+
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#c4b5fd;margin-bottom:12px">🎬 REELS (${reels.length})</div>
+    ${reels.map((item,i)=>execCardHTML(item,i+1,'reel')).join('')}
+
+    <div class="stories-section">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#fb7185;margin-bottom:12px">📱 STORIES (${stories.length})</div>
+      ${stories.map((item,i)=>execCardHTML(item,i+1,'story')).join('')}
+    </div>`;
+}
+
+function execCardHTML(item, num, type){
+  const isReel = type==='reel';
+  const accentColor = isReel ? '#c4b5fd' : '#fb7185';
+  const bgAccent    = isReel ? 'rgba(124,58,237,.12)' : 'rgba(244,63,94,.1)';
+  const emoji       = isReel ? '🎬' : '📱';
+
+  // Parse chat messages
+  const msgs = (item.chat_data||'').split(';;').map(m=>{
+    const parts = m.split('|'); return {t:parts[0], m:parts[1]};
+  }).filter(m=>m.m);
+
+  // Preview POV + chat
+  const chatMiniHtml = msgs.map(m=>
+    m.t==='sent'
+      ? `<div class="sent-wrap"><span class="m sent">${esc(m.m)}</span></div>`
+      : `<div class="recv-wrap"><span class="m recv">${esc(m.m)}</span></div>`
+  ).join('');
+
+  const povPreview = `
+    <div class="exec-pov-preview">
+      <div class="exec-pov-text">${esc(item.situacao||item.title)}</div>
+      ${chatMiniHtml ? `<div class="exec-chat-mini">${chatMiniHtml}</div>` : ''}
+    </div>`;
+
+  // Referência da galeria
+  const refSnippet = item.ref_img
+    ? `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(124,58,237,.08);border-bottom:1px solid var(--border)">
+        <img src="${item.ref_img}" class="exec-ref-img">
+        <div style="font-size:11px;color:var(--fg3)">📸 <strong>Suba ESSA foto</strong> no Kling + cole o Prompt de Vídeo abaixo</div>
+       </div>`
+    : '';
+
+  if(isReel){
+    return `<div class="exec-card">
+      <div class="exec-header">
+        <div class="num" style="background:${bgAccent};color:${accentColor}">${emoji}${num}</div>
+        <div class="title">${esc(item.situacao||item.title)}</div>
+        <span class="cat" style="background:${bgAccent};color:${accentColor}">${item.category||'Reel'}</span>
+      </div>
+      ${refSnippet}
+      <div class="exec-steps">
+
+        <!-- PASSO 1: Preview -->
+        <div class="exec-step">
+          <div class="exec-step-header">
+            <div class="exec-step-num" style="background:#6366f1">1</div>
+            <div class="exec-step-label">Preview — como vai ficar</div>
+          </div>
+          <div class="exec-step-body" style="padding:12px;background:var(--bg3)">${povPreview}</div>
+        </div>
+
+        <!-- PASSO 2: Prompt de Imagem -->
+        <div class="exec-step">
+          <div class="exec-step-header">
+            <div class="exec-step-num" style="background:#7c3aed">2</div>
+            <div class="exec-step-label">Prompt de Foto → ChatGPT ou Midjourney</div>
+          </div>
+          <div class="exec-step-body mono" id="pi-${item.id}">${esc(item.prompt_img||'')}</div>
+          <div class="exec-copy-bar">
+            <button class="exec-copy-btn" onclick="copy(document.getElementById('pi-${item.id}').textContent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar prompt de foto
+            </button>
+          </div>
+        </div>
+
+        <!-- PASSO 3: Prompt de Vídeo -->
+        <div class="exec-step">
+          <div class="exec-step-header">
+            <div class="exec-step-num" style="background:#0ea5e9">3</div>
+            <div class="exec-step-label">Prompt de Vídeo → Kling AI (Image to Video)</div>
+          </div>
+          <div class="exec-step-body mono" id="pv-${item.id}">${esc(item.prompt_vid||'')}</div>
+          <div class="exec-copy-bar">
+            <button class="exec-copy-btn" onclick="copy(document.getElementById('pv-${item.id}').textContent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar prompt de vídeo
+            </button>
+          </div>
+        </div>
+
+        <!-- PASSO 4: Texto na tela (CapCut) -->
+        <div class="exec-step">
+          <div class="exec-step-header">
+            <div class="exec-step-num" style="background:#059669">4</div>
+            <div class="exec-step-label">Texto na tela → CapCut (fonte bold branca)</div>
+          </div>
+          <div class="exec-step-body" id="pt-${item.id}" style="font-size:16px;font-weight:800;color:var(--fg);padding:14px 12px">${esc(item.situacao||item.title)}</div>
+          <div class="exec-copy-bar">
+            <button class="exec-copy-btn" onclick="copy(document.getElementById('pt-${item.id}').textContent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar texto
+            </button>
+          </div>
+        </div>
+
+        <!-- PASSO 5: Legenda -->
+        <div class="exec-step">
+          <div class="exec-step-header">
+            <div class="exec-step-num" style="background:#d97706">5</div>
+            <div class="exec-step-label">Legenda → colar na hora de postar</div>
+          </div>
+          <div class="exec-step-body" id="pl-${item.id}">${esc(item.legenda||'')}</div>
+          <div class="exec-copy-bar">
+            <button class="exec-copy-btn" onclick="copy(document.getElementById('pl-${item.id}').textContent)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar legenda
+            </button>
+          </div>
+        </div>
+
+        <!-- PASSO 6: Áudio sugerido -->
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--rsm);padding:10px 12px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px">🎵</span>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:2px">PASSO 6 — Adicione o áudio em alta</div>
+            <div style="font-size:11px;color:var(--fg4)">Vá na aba <strong style="color:var(--fg2)">Áudios</strong> e escolha um trending. Cole no CapCut antes de exportar.</div>
+          </div>
+          <button class="exec-copy-btn" onclick="goBn('audios')" style="white-space:nowrap">Ver áudios →</button>
+        </div>
+
+      </div>
+    </div>`;
+  }
+
+  // STORY card — mais simples
+  let sd={};try{sd=JSON.parse(item.story_data||'{}')}catch(e){}
+  const storyPreview = sd.format==='enquete'
+    ? `<div style="background:#f0f2f5;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-weight:700;color:#111;font-size:13px;margin-bottom:8px">${esc(sd.pergunta||'')}</div>
+        <div style="display:flex;gap:6px">
+          <div style="flex:1;background:#3797f0;color:white;padding:6px;border-radius:5px;font-size:11px;font-weight:600">${esc(sd.opt1||'Sim')}</div>
+          <div style="flex:1;background:#e8e8e8;color:#333;padding:6px;border-radius:5px;font-size:11px;font-weight:600">${esc(sd.opt2||'Não')}</div>
+        </div>
+       </div>`
+    : `<div style="background:#f0f2f5;border-radius:8px;padding:10px;font-size:12px;color:#222">
+        ${(sd.itens||[]).map(it=>`<div style="padding:2px 0">➡️ ${esc(it)}</div>`).join('')}
+       </div>`;
+
+  return `<div class="exec-card" style="border-color:rgba(244,63,94,.25)">
+    <div class="exec-header" style="background:rgba(244,63,94,.06)">
+      <div class="num" style="background:rgba(244,63,94,.15);color:#fb7185">${emoji}${num}</div>
+      <div class="title">${esc(item.situacao||item.title)}</div>
+      <span class="cat" style="background:rgba(244,63,94,.12);color:#fb7185">${item.category||'Story'}</span>
+    </div>
+    <div class="exec-steps">
+
+      <!-- Preview -->
+      <div class="exec-step">
+        <div class="exec-step-header">
+          <div class="exec-step-num" style="background:#be185d">1</div>
+          <div class="exec-step-label">Preview do story</div>
+        </div>
+        <div style="padding:12px;background:var(--bg3)">
+          <div style="font-size:15px;font-weight:800;color:var(--fg);text-align:center;margin-bottom:10px">${esc(item.situacao||item.title)}</div>
+          ${storyPreview}
+        </div>
+      </div>
+
+      <!-- Texto -->
+      <div class="exec-step">
+        <div class="exec-step-header">
+          <div class="exec-step-num" style="background:#059669">2</div>
+          <div class="exec-step-label">Texto principal → Stories do Instagram</div>
+        </div>
+        <div class="exec-step-body" id="st-${item.id}" style="font-weight:700;font-size:15px;color:var(--fg)">${esc(item.situacao||item.title)}</div>
+        <div class="exec-copy-bar">
+          <button class="exec-copy-btn" onclick="copy(document.getElementById('st-${item.id}').textContent)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copiar texto
+          </button>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div style="padding:10px 12px;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15);border-radius:var(--rsm);font-size:12px;color:var(--fg3)">
+        <strong style="color:#fb7185">CTA:</strong> ${esc(item.cta||'')}
+        ${sd.format==='enquete'
+          ? ' · <strong style="color:var(--fg2)">Adicione o sticker de enquete do Instagram</strong>'
+          : ' · <strong style="color:var(--fg2)">Use a caixa de resposta</strong>'}
+      </div>
+
+    </div>
+  </div>`;
+}
+
+
+function secBlock(label, content, cls=''){
+  const eid='s'+Math.random().toString(36).substr(2,5);
+  return `<div class="sb ${cls}" style="margin-top:10px">
+    <div class="sbh">
+      <span class="sbl">${label}</span>
+      <button class="bico" style="padding:4px" onclick="copy(document.getElementById('${eid}').textContent)">${svgCopy()}</button>
+    </div>
+    <div class="sbc" id="${eid}">${esc(content)}</div>
+  </div>`;
+}
+
+function randomTime(){
+  const h=Math.floor(Math.random()*4)+18;const m=Math.floor(Math.random()*60);
+  return `${h}:${m.toString().padStart(2,'0')}`;
+}
+
+function toggleX(key){
+  const el=document.getElementById(key);const arr=document.getElementById(key+'-arr');
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  arr?.classList.toggle('open',!open);
+}
+
+function saveAll(){
+  S.contents=[...lastGen,...S.contents];
+  save();renderGenResults();toast('Conteúdos salvos!');
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function renderDash(){
+  document.getElementById('d-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const items=S.contents;
+  const todayStr=today();
+  const todayItems=items.filter(i=>i.scheduled_date===todayStr||i.created_at?.startsWith(todayStr));
+  const pending=items.filter(i=>['ideia','prompt_criado','imagem_gerada','video_gerado'].includes(i.status));
+  const ready=items.filter(i=>i.status==='revisado');
+  const posted=items.filter(i=>i.status==='postado');
+
+  document.getElementById('d-stats').innerHTML=[
+    {l:'Hoje',v:todayItems.length,sub:'criados',bg:'rgba(124,58,237,.15)',c:'#a78bfa'},
+    {l:'Pendentes',v:pending.length,sub:'em produção',bg:'rgba(245,158,11,.12)',c:'#fbbf24'},
+    {l:'Prontos',v:ready.length,sub:'para postar',bg:'rgba(34,197,94,.1)',c:'#4ade80'},
+    {l:'Postados',v:posted.length,sub:'total',bg:'rgba(56,189,248,.1)',c:'#38bdf8'},
+  ].map(s=>`<div class="sc">
+    <div class="ico" style="background:${s.bg};color:${s.c}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+    </div>
+    <div class="sv">${s.v}</div>
+    <div class="sl">${s.l}</div>
+    <div style="font-size:11px;color:var(--fg4)">${s.sub}</div>
+  </div>`).join('');
+
+  const statuses=['ideia','prompt_criado','imagem_gerada','video_gerado','revisado','postado'];
+  const mx=Math.max(...statuses.map(s=>items.filter(i=>i.status===s).length),1);
+  document.getElementById('d-pipeline').innerHTML=statuses.map(s=>{
+    const c=items.filter(i=>i.status===s).length;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span class="badge ${sclass(s)}">${slabel(s)}</span>
+        <span style="font-family:'Fira Code',monospace;font-size:12px;font-weight:700;color:var(--fg3)">${c}</span>
+      </div>
+      <div class="prb"><div class="prf" style="width:${Math.round(c/mx*100)}%"></div></div>
+    </div>`;
+  }).join('');
+
+  const reels=items.filter(i=>i.content_type==='reel').length;
+  const stories=items.filter(i=>i.content_type==='story').length;
+  document.getElementById('d-formats').innerHTML=[
+    {l:'Reels',c:reels,bg:'rgba(124,58,237,.15)',fg:'#c4b5fd',e:'🎬'},
+    {l:'Stories',c:stories,bg:'rgba(244,63,94,.1)',fg:'#fb7185',e:'📱'},
+  ].map(({l,c,bg,fg,e})=>{
+    const pct=items.length?Math.round(c/items.length*100):0;
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:7px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:14px">${e}</div>
+          <span style="font-size:13px;color:var(--fg2)">${l}</span>
+        </div>
+        <span style="font-family:'Fira Code',monospace;font-size:12px;font-weight:700;color:var(--fg3)">${c}</span>
+      </div>
+      <div class="prb"><div class="prf" style="width:${pct}%;background:${fg}"></div></div>
+    </div>`;
+  }).join('')+`<div style="text-align:center;padding-top:10px;border-top:1px solid var(--border)">
+    <span style="font-family:'Fira Code',monospace;font-size:22px;font-weight:700">${items.length}</span>
+    <span style="font-size:11px;color:var(--fg4);margin-left:6px">total</span>
+  </div>`;
+
+  const recent=items.slice(0,6);
+  document.getElementById('d-recent').innerHTML=recent.length?recent.map(item=>`
+    <div class="card" style="cursor:pointer" onclick="openDetail('${item.id}')">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:16px">${item.content_type==='reel'?'🎬':'📱'}</span>
+        <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${item.content_type==='reel'?'#c4b5fd':'#fb7185'}">${item.content_type} · ${item.category||''}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--fg);margin-bottom:8px;line-clamp:2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${item.situacao||item.title}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="badge ${sclass(item.status)}">${slabel(item.status)}</span>
+        ${item.scheduled_date?`<span style="font-size:11px;color:var(--fg4)">${fmtDate(item.scheduled_date)}</span>`:''}
+      </div>
+    </div>`).join(''):
+    `<div style="grid-column:span 3"><div class="empty">
+      <div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div style="font-size:15px;font-weight:700;color:var(--fg2);margin-bottom:6px">Pronto pra começar</div>
+      <div style="font-size:13px;color:var(--fg4)">Vá ao Gerador Diário e crie o primeiro conteúdo</div>
+    </div></div>`;
+}
+
+// ─── CALENDÁRIO ───────────────────────────────────────────────────────────────
+function getWeekDays(d){
+  const start=new Date(d);const day=start.getDay();
+  start.setDate(start.getDate()-day+(day===0?-6:1));
+  return Array.from({length:7},(_,i)=>{const dd=new Date(start);dd.setDate(dd.getDate()+i);return dd;});
+}
+function isoDate(d){return d.toISOString().split('T')[0]}
+
+function renderCal(){
+  const days=getWeekDays(S.week);
+  const todayStr=today();
+  document.getElementById('wlabel').textContent=
+    days[0].toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})+' — '+
+    days[6].toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+
+  document.getElementById('cal-grid').innerHTML=days.map((day,i)=>{
+    const ds=isoDate(day);
+    const dayItems=S.contents.filter(c=>c.scheduled_date===ds);
+    const labels=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    return `<div class="cday ${ds===todayStr?'today':''}">
+      <div class="cdh">
+        <div class="cdl">${labels[i]}</div>
+        <div class="cdn">${day.getDate()}</div>
+        ${dayItems.length?`<div style="font-size:10px;color:var(--fg4)">${dayItems.length} item${dayItems.length>1?'s':''}</div>`:''}
+      </div>
+      <div class="citems">
+        ${dayItems.map(item=>`<div class="citem ${item.content_type}" onclick="openDetail('${item.id}')">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase">${item.content_type==='reel'?'🎬':'📱'} ${item.content_type}</div>
+          <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(item.situacao||item.title).substring(0,30)}</div>
+        </div>`).join('')}
+        ${!dayItems.length?'<div style="padding:10px 6px;text-align:center;font-size:10px;color:var(--border2)">vazio</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function prevWeek(){S.week.setDate(S.week.getDate()-7);renderCal()}
+function nextWeek(){S.week.setDate(S.week.getDate()+7);renderCal()}
+
+// ─── BIBLIOTECA ───────────────────────────────────────────────────────────────
+function renderBib(){
+  const q=(document.getElementById('bib-q')?.value||'').toLowerCase();
+  const type=document.getElementById('bib-type')?.value||'';
+  const status=document.getElementById('bib-status')?.value||'';
+  let items=S.contents;
+  if(q) items=items.filter(i=>[i.situacao,i.title,i.legenda,i.chat_data].some(f=>f?.toLowerCase().includes(q)));
+  if(type) items=items.filter(i=>i.content_type===type);
+  if(status) items=items.filter(i=>i.status===status);
+  document.getElementById('bib-count').textContent=`${S.contents.length} conteúdos · ${items.length} exibidos`;
+  document.getElementById('bib-list').innerHTML=items.length?items.map(item=>bibItemHTML(item)).join(''):
+    `<div class="empty"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div style="font-size:14px;font-weight:700;color:var(--fg2)">Nenhum resultado</div></div>`;
+}
+
+function bibItemHTML(item){
+  const key='bib-'+item.id;
+  const isReel=item.content_type==='reel';
+  return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px">
+    <button class="xbtn" onclick="toggleX('${key}')">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <span style="font-size:16px;flex-shrink:0">${isReel?'🎬':'📱'}</span>
+        <div style="flex:1;min-width:0;text-align:left">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:${isReel?'#c4b5fd':'#fb7185'}">${item.content_type} · ${item.category||''}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.situacao||item.title}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span class="badge ${sclass(item.status)}">${slabel(item.status)}</span>
+        <svg class="xarr" id="${key}-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+      </div>
+    </button>
+    <div id="${key}" style="display:none;padding:0 16px 16px;border-top:1px solid var(--border)">
+      <div style="padding:12px 0">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--fg4);margin-bottom:8px">Status</div>
+        <div class="strow">${['ideia','prompt_criado','imagem_gerada','video_gerado','revisado','postado'].map(s=>
+          `<button class="stbtn ${item.status===s?'on':''}" onclick="changeStatus('${item.id}','${s}')">${slabel(s)}</button>`
+        ).join('')}</div>
+      </div>
+      ${item.legenda?`<div class="sb" style="margin-top:4px">
+        <div class="sbh"><span class="sbl">📲 Legenda</span><button class="bico" style="padding:4px" onclick="copy('${escAttr(item.legenda)}')">${svgCopy()}</button></div>
+        <div class="sbc">${esc(item.legenda)}</div>
+      </div>`:''}
+      ${item.prompt_img?`<div class="sb pmt" style="margin-top:8px">
+        <div class="sbh"><span class="sbl">🖼️ Prompt Imagem</span><button class="bico" style="padding:4px" onclick="copy('${escAttr(item.prompt_img)}')">${svgCopy()}</button></div>
+        <div class="sbc">${esc(item.prompt_img)}</div>
+      </div>`:''}
+      ${item.prompt_vid?`<div class="sb pmt" style="margin-top:8px">
+        <div class="sbh"><span class="sbl">🎬 Prompt Vídeo</span><button class="bico" style="padding:4px" onclick="copy('${escAttr(item.prompt_vid)}')">${svgCopy()}</button></div>
+        <div class="sbc">${esc(item.prompt_vid)}</div>
+      </div>`:''}
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn bg bsm" onclick="openDetail('${item.id}')">Ver completo</button>
+        <button class="btn bsm" style="color:var(--rose);border:1px solid rgba(244,63,94,.3)" onclick="delContent('${item.id}')">${svgDel()} Excluir</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function changeStatus(id,status){
+  S.contents=S.contents.map(c=>c.id===id?{...c,status}:c);
+  save();renderBib();toast('Status atualizado!');
+}
+function delContent(id){
+  if(!confirm('Excluir?'))return;
+  S.contents=S.contents.filter(c=>c.id!==id);
+  save();renderBib();
+}
+
+// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
+function openDetail(id){
+  const item=S.contents.find(c=>c.id===id);
+  if(!item)return;
+  document.getElementById('dm-title').textContent=item.situacao||item.title;
+  document.getElementById('dm-badges').innerHTML=`
+    <span class="badge ${item.content_type==='reel'?'b-reel':'b-story'}" style="margin-right:6px">${item.content_type}</span>
+    <span class="badge ${sclass(item.status)}">${slabel(item.status)}</span>`;
+
+  const isReel=item.content_type==='reel';
+  document.getElementById('dm-body').innerHTML=`
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--fg4);margin-bottom:8px">Alterar Status</div>
+      <div class="strow">${['ideia','prompt_criado','imagem_gerada','video_gerado','revisado','postado'].map(s=>
+        `<button class="stbtn ${item.status===s?'on':''}" onclick="changeStatusModal('${id}','${s}')">${slabel(s)}</button>`
+      ).join('')}</div>
+    </div>
+    <div class="div"></div>
+    ${isReel?reelExpandHTML(item):storyExpandHTML(item)}
+    <div class="div"></div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--fg3);margin-bottom:10px">📊 Nota de Performance</div>
+      <textarea class="ft" id="perf-txt" rows="3" placeholder="Como esse conteúdo performou? Views, saves, comentários..."></textarea>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--fg3);cursor:pointer">
+          <input type="checkbox" id="perf-well" style="accent-color:var(--green);width:15px;height:15px"> Performou bem ⭐
+        </label>
+        <button class="btn bg bsm" onclick="saveNote('${id}')">Salvar</button>
+      </div>
+    </div>`;
+
+  document.getElementById('detail-modal').style.display='flex';
+}
+
+function changeStatusModal(id,status){
+  S.contents=S.contents.map(c=>c.id===id?{...c,status}:c);
+  save();
+  const item=S.contents.find(c=>c.id===id);
+  if(item){
+    document.getElementById('dm-badges').innerHTML=`
+      <span class="badge ${item.content_type==='reel'?'b-reel':'b-story'}" style="margin-right:6px">${item.content_type}</span>
+      <span class="badge ${sclass(item.status)}">${slabel(item.status)}</span>`;
+  }
+  toast('Status atualizado!');
+}
+
+function saveNote(id){
+  const txt=document.getElementById('perf-txt')?.value.trim();
+  if(!txt){toast('Escreva uma nota!');return;}
+  toast('Nota salva!');
+  document.getElementById('perf-txt').value='';
+}
+
+function closeDetail(){document.getElementById('detail-modal').style.display='none'}
+
+// ─── PERSONA ──────────────────────────────────────────────────────────────────
+function renderPer(){
+  document.getElementById('per-list').innerHTML=S.personas.length
+    ?S.personas.map(p=>`<div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--rose));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:white;flex-shrink:0">${p.name[0]}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700">${p.name}</div>
+            <div style="font-size:12px;color:var(--fg4);margin-top:2px">${p.niche} · ${p.age} anos · ${p.city||''}</div>
+            <div style="font-size:12px;color:var(--fg3);margin-top:4px;max-width:480px">${p.tone||''}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="bico" onclick="openPerModal(S.personas.find(x=>x.id==='${p.id}'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="bico" style="color:var(--rose)" onclick="delPer('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2,2H8a2 2 0 01-2-2L5,6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="div"></div>
+      <div class="g2">
+        ${p.desc?`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:10px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--fg4);margin-bottom:4px">Descrição Física</div><div style="font-size:12px;color:var(--fg3)">${p.desc}</div></div>`:''}
+        ${p.style?`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:10px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--fg4);margin-bottom:4px">Estilo Visual</div><div style="font-size:12px;color:var(--fg3)">${p.style}</div></div>`:''}
+      </div>
+      <div style="margin-top:10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--rsm);padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--accent2);margin-bottom:6px">🖼️ PROMPT BASE DE IMAGEM</div>
+        <div style="font-size:12px;font-family:'Fira Code',monospace;color:#a78bfa;line-height:1.6">Ultra-realistic portrait photography, ${p.desc}, ${p.style}, ${p.envs||'modern interior'}, natural soft lighting, 8k, professional lifestyle photography</div>
+        <button class="btn bg bsm" style="margin-top:8px" onclick="copy('Ultra-realistic portrait photography, ${escAttr(p.desc)}, ${escAttr(p.style)}, ${escAttr(p.envs||'modern interior')}, natural soft lighting, 8k, professional lifestyle photography')">
+          ${svgCopy()} Copiar prompt base
+        </button>
+      </div>
+    </div>`).join('')
+    :`<div class="empty"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div style="font-size:15px;font-weight:700;color:var(--fg2);margin-bottom:6px">Nenhuma persona</div></div>`;
+  
+  // Guia de modelo real — sempre visível abaixo das personas
+  document.getElementById('per-list').innerHTML += `
+  <div style="margin-top:24px;background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.2);border-radius:var(--radius);padding:20px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#38bdf8;margin-bottom:14px">📸 COMO USAR SUA MODELO REAL NOS REELS</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      ${[
+        {n:'1',t:'Gere o conteúdo',d:'Use o Gerador Diário normalmente. Copie o Prompt de Imagem do reel desejado.',c:'#a78bfa'},
+        {n:'2',t:'Foto da modelo',d:'Tire ou selecione uma foto real dela no ambiente correto (quarto, café, etc). Pose natural, boa luz.',c:'#38bdf8'},
+        {n:'3',t:'Envie no Kling AI',d:'Acesse klingai.com → Image to Video. Suba a foto da modelo + cole o Prompt de Vídeo.',c:'#4ade80'},
+        {n:'4',t:'Configure o vídeo',d:'Duração: 5-10s. Aspect: 9:16. Mode: Standard. Clique em Generate.',c:'#fb7185'},
+        {n:'5',t:'Monte no CapCut',d:'Importe o vídeo. Adicione o texto POV em bold branco. Cole o print de WhatsApp como overlay. Adicione música viral.',c:'#fbbf24'},
+        {n:'6',t:'Salve e poste',d:'Exporte em 1080p. Volte ao Elektra, atualize o status para "Postado". Registre a performance.',c:'#c4b5fd'},
+      ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);padding:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:${s.c}22;border:1px solid ${s.c}44;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${s.c};margin-bottom:8px">${s.n}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:4px">${s.t}</div>
+        <div style="font-size:11px;color:var(--fg4);line-height:1.5">${s.d}</div>
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:14px;padding:10px 14px;background:var(--bg3);border-radius:var(--rsm);font-size:12px;color:var(--fg3);line-height:1.6">
+      <strong style="color:var(--fg2)">💡 Dica pro:</strong> No Kling, use o modo <strong>"Image to Video"</strong> com a foto real da sua modelo. 
+      Isso mantém o rosto e o corpo dela consistentes em todos os vídeos. Plano gratuito dá ~10 vídeos/dia.
+      Para consistência máxima, use sempre a mesma foto base ou crie um "personagem" no Kling com várias fotos dela.
+    </div>
+  </div>`;
+}
+
+let _editPerid=null;
+function openPerModal(p=null){
+  _editPerid=p?.id||null;
+  document.getElementById('per-modal-title').textContent=p?'Editar Persona':'Nova Persona';
+  document.getElementById('per-id').value=p?.id||'';
+  document.getElementById('per-name').value=p?.name||'';
+  document.getElementById('per-age').value=p?.age||'';
+  document.getElementById('per-niche').value=p?.niche||'Lifestyle / Rotina';
+  document.getElementById('per-city').value=p?.city||'';
+  document.getElementById('per-desc').value=p?.desc||'';
+  document.getElementById('per-style').value=p?.style||'';
+  document.getElementById('per-envs').value=p?.envs||'';
+  document.getElementById('per-tone').value=p?.tone||'';
+  document.getElementById('per-words').value=p?.words||'';
+  document.getElementById('per-modal').style.display='flex';
+}
+function closePerModal(){document.getElementById('per-modal').style.display='none'}
+function savePer(){
+  const name=document.getElementById('per-name').value.trim();
+  if(!name){toast('Nome é obrigatório!');return;}
+  const obj={
+    id:_editPerid||uid(),
+    name,age:document.getElementById('per-age').value.trim(),
+    niche:document.getElementById('per-niche').value.trim(),
+    city:document.getElementById('per-city').value.trim(),
+    desc:document.getElementById('per-desc').value.trim(),
+    style:document.getElementById('per-style').value.trim(),
+    envs:document.getElementById('per-envs').value.trim(),
+    tone:document.getElementById('per-tone').value.trim(),
+    words:document.getElementById('per-words').value.trim(),
+    created_at:new Date().toISOString()
+  };
+  if(_editPerid) S.personas=S.personas.map(p=>p.id===_editPerid?obj:p);
+  else S.personas.push(obj);
+  save();closePerModal();renderPer();toast('Persona salva!');
+}
+function delPer(id){
+  if(!confirm('Excluir esta persona?'))return;
+  S.personas=S.personas.filter(p=>p.id!==id);
+  save();renderPer();
+}
+
+// ─── BANCO DE IDEIAS ──────────────────────────────────────────────────────────
+
+// State
+S.ideias = [];
+let _ideaTipo = 'print';
+let _ideaImgData = null;
+let _editIdeiaId = null;
+let _itabFilter = 'all';
+
+// Persist: extend save/load
+function save(){
+  localStorage.setItem('elkt3', JSON.stringify({
+    personas: S.personas,
+    contents: S.contents,
+    ideias: S.ideias,
+    galeria: S.galeria || [],
+    audios: S.audios || [],
+    audios_updated: S.audios_updated || null
+  }));
+}
+function load(){
+  const r = localStorage.getItem('elkt3');
+  if(r){
+    const d = JSON.parse(r);
+    S.personas = d.personas || [];
+    S.contents = d.contents || [];
+    S.ideias   = d.ideias   || [];
+    S.galeria  = d.galeria  || [];
+    S.audios   = d.audios   || [];
+    S.audios_updated = d.audios_updated || null;
+  } else {
+    // seed persona padrão
+    S.personas = [{
+      id:uid(), name:'Beatriz Santos', age:'22', niche:'Lifestyle / Rotina', city:'Rio de Janeiro',
+      desc:'jovem brasileira, cabelos loiros longos lisos, pele clara, sorriso genuíno e expressivo, olhos claros, corpo atlético, feições harmoniosas',
+      style:'minimalista moderno, tons neutros e bege, quarto bem decorado com plantas e luzes de LED, roupas casuais elegantes',
+      envs:'quarto bem decorado, cafeteria moderna, academia, shopping, espelho do banheiro',
+      tone:'espontânea, engraçada, carinhosa, muito relatable',
+      words:'miga, né, literalmente, nossa senhora, kkk, que saudade',
+      created_at: new Date().toISOString()
+    }];
+    S.ideias = [];
+    save();
+  }
+}
+
+// Nav routing: add ideias
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const idx = {dashboard:0,gerador:1,calendario:2,biblioteca:3,ideias:4,galeria:5,audios:6,persona:7}[name];
+  document.querySelectorAll('.ni')[idx]?.classList.add('active');
+  S.page = name;
+  document.getElementById('sidebar').classList.remove('open');
+  render();
+  syncBn(name);
+}
+
+function render(){
+  const p = S.page;
+  if(p==='dashboard') renderDash();
+  if(p==='gerador')   renderGerador();
+  if(p==='calendario') renderCal();
+  if(p==='biblioteca') renderBib();
+  if(p==='ideias')    renderIdeias();
+  if(p==='galeria')   renderGaleria();
+  if(p==='audios')    renderAudios();
+  if(p==='persona')   renderPer();
+}
+
+// ── Modal de ideia ────────────────────────────────────────────────────────────
+function openIdeiaModal(ideia=null){
+  _editIdeiaId = ideia?.id || null;
+  _ideaImgData = ideia?.img || null;
+  document.getElementById('ideia-modal-title').textContent = ideia ? 'Editar Ideia' : 'Nova Ideia';
+  document.getElementById('ideia-id').value         = ideia?.id || '';
+  document.getElementById('ideia-situacao').value   = ideia?.situacao || '';
+  document.getElementById('ideia-cat').value        = ideia?.categoria || 'amizade';
+  document.getElementById('ideia-obs').value        = ideia?.obs || '';
+  document.getElementById('ideia-star').checked     = ideia?.estrela || false;
+  document.getElementById('ideia-link').value       = ideia?.link || '';
+
+  setIdeaTipo(ideia?.tipo || 'print');
+
+  // Preview de imagem existente
+  if(_ideaImgData){
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('img-preview-el').src = _ideaImgData;
+    document.getElementById('upload-zone').style.display = 'none';
+  } else {
+    document.getElementById('img-preview').style.display = 'none';
+    document.getElementById('upload-zone').style.display = 'block';
+  }
+
+  document.getElementById('ideia-modal').style.display = 'flex';
+}
+
+function closeIdeiaModal(){
+  document.getElementById('ideia-modal').style.display = 'none';
+  _ideaImgData = null;
+  _editIdeiaId = null;
+  document.getElementById('file-input').value = '';
+}
+
+function setIdeaTipo(tipo){
+  _ideaTipo = tipo;
+  const isPrint = tipo === 'print';
+  document.getElementById('area-print').style.display = isPrint ? 'block' : 'none';
+  document.getElementById('area-ref').style.display   = isPrint ? 'none' : 'block';
+  document.getElementById('tipo-print').className = isPrint ? 'btn bp' : 'btn bg';
+  document.getElementById('tipo-ref').className   = isPrint ? 'btn bg' : 'btn bp';
+  document.getElementById('tipo-print').style.flex = '1';
+  document.getElementById('tipo-ref').style.flex  = '1';
+}
+
+function handleFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _ideaImgData = e.target.result;
+    document.getElementById('img-preview-el').src = _ideaImgData;
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _ideaImgData = ev.target.result;
+    document.getElementById('img-preview-el').src = _ideaImgData;
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImg(){
+  _ideaImgData = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('file-input').value = '';
+  document.getElementById('img-preview-el').src = '';
+}
+
+function saveIdeia(){
+  const situacao = document.getElementById('ideia-situacao').value.trim();
+  if(!situacao && !_ideaImgData && !document.getElementById('ideia-link').value.trim()){
+    toast('Preencha pelo menos a situação ou suba um print!'); return;
+  }
+  const obj = {
+    id:       _editIdeiaId || uid(),
+    tipo:     _ideaTipo,
+    situacao,
+    categoria: document.getElementById('ideia-cat').value,
+    obs:       document.getElementById('ideia-obs').value.trim(),
+    estrela:   document.getElementById('ideia-star').checked,
+    link:      document.getElementById('ideia-link').value.trim(),
+    img:       _ideaImgData || null,
+    usos:      _editIdeiaId ? (S.ideias.find(i=>i.id===_editIdeiaId)?.usos || 0) : 0,
+    created_at: new Date().toISOString()
+  };
+  if(_editIdeiaId) S.ideias = S.ideias.map(i=>i.id===_editIdeiaId ? obj : i);
+  else S.ideias.unshift(obj);
+  save(); closeIdeiaModal(); renderIdeias();
+  toast('Ideia salva!');
+}
+
+// ── Render do banco ────────────────────────────────────────────────────────────
+function setItab(tab){
+  _itabFilter = tab;
+  ['all','print','ref','star'].forEach(t=>{
+    document.getElementById('itab-'+t)?.classList.toggle('active', t===tab);
+  });
+  renderIdeias();
+}
+
+function renderIdeias(){
+  const q = (document.getElementById('ideias-q')?.value||'').toLowerCase();
+  let items = S.ideias;
+
+  if(_itabFilter === 'print') items = items.filter(i=>i.tipo==='print');
+  if(_itabFilter === 'ref')   items = items.filter(i=>i.tipo==='ref');
+  if(_itabFilter === 'star')  items = items.filter(i=>i.estrela);
+  if(q) items = items.filter(i=>[i.situacao,i.obs,i.categoria].some(f=>f?.toLowerCase().includes(q)));
+
+  const total   = S.ideias.length;
+  const estrelas = S.ideias.filter(i=>i.estrela).length;
+  document.getElementById('ideias-count').textContent =
+    `${total} ideia${total!==1?'s':''} · ${estrelas} favorita${estrelas!==1?'s':''}`;
+
+  if(!items.length){
+    document.getElementById('ideias-grid').innerHTML = `
+      <div style="grid-column:1/-1">
+        <div class="empty">
+          <div class="eico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--fg2);margin-bottom:6px">Nenhuma ideia aqui ainda</div>
+          <div style="font-size:13px;color:var(--fg4);margin-bottom:16px">
+            ${_itabFilter==='star' ? 'Marque ideias como ⭐ favorita ao cadastrá-las' : 'Adicione prints de conversas que funcionaram bem ou links de referência'}
+          </div>
+          <button class="btn bp" onclick="openIdeiaModal()">+ Adicionar primeira ideia</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('ideias-grid').innerHTML = items.map(ideia => ideiaCardHTML(ideia)).join('');
+}
+
+function ideiaCardHTML(ideia){
+  const catEmoji = {amizade:'🫂',rotina:'☀️',humor:'😂',crush:'💕',familia:'🏠',trabalho:'💼',outro:'✨'}[ideia.categoria]||'✨';
+  return `<div class="idea-card ${ideia.estrela?'estrela':''}" onclick="openIdeiaModal(S.ideias.find(i=>i.id==='${ideia.id}'))">
+    ${ideia.img
+      ? `<img class="idea-img" src="${ideia.img}" alt="print">`
+      : `<div class="idea-img-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+          <span>${ideia.tipo==='ref' ? '🔗 Link' : 'Sem imagem'}</span>
+        </div>`
+    }
+    <div class="idea-footer">
+      <div style="margin-bottom:6px">
+        <span class="idea-tag ${ideia.tipo}">${ideia.tipo==='print'?'🟢 Print':'🔵 Ref'}</span>
+        ${ideia.estrela ? '<span class="idea-tag star">⭐ Favorita</span>' : ''}
+        <span class="idea-tag" style="background:var(--bg3);color:var(--fg4);border-color:var(--border)">${catEmoji} ${ideia.categoria}</span>
+      </div>
+      ${ideia.situacao ? `<div style="font-size:12px;font-weight:600;color:var(--fg);line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">"${esc(ideia.situacao)}"</div>` : ''}
+      ${ideia.link ? `<div style="font-size:11px;color:var(--fg4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔗 ${esc(ideia.link)}</div>` : ''}
+      ${ideia.obs ? `<div style="font-size:11px;color:var(--fg4);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(ideia.obs)}</div>` : ''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <span style="font-size:10px;color:var(--fg4)">${new Date(ideia.created_at).toLocaleDateString('pt-BR')}</span>
+        <div style="display:flex;gap:4px">
+          <button class="gen-idea-badge" title="Gerar variação desta ideia" onclick="event.stopPropagation();gerarVariacao('${ideia.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:11px;height:11px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Gerar
+          </button>
+          <button class="bico" style="padding:4px" title="Excluir" onclick="event.stopPropagation();delIdeia('${ideia.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2,2H8a2 2 0 01-2-2L5,6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function delIdeia(id){
+  if(!confirm('Excluir esta ideia?'))return;
+  S.ideias = S.ideias.filter(i=>i.id!==id);
+  save(); renderIdeias();
+}
+
+// ── Gerar variação de uma ideia específica ─────────────────────────────────────
+function gerarVariacao(ideiaId){
+  const ideia = S.ideias.find(i=>i.id===ideiaId);
+  if(!ideia) return;
+
+  // Incrementa contador de uso
+  S.ideias = S.ideias.map(i=>i.id===ideiaId ? {...i, usos:(i.usos||0)+1} : i);
+  save();
+
+  // Vai para o gerador e preenche com a situação da ideia
+  go('gerador');
+  setTimeout(()=>{
+    if(ideia.situacao){
+      const el = document.getElementById('g-real');
+      if(el) el.value = `Variação de: ${ideia.situacao}`;
+    }
+    if(ideia.obs){
+      const el2 = document.getElementById('g-tema');
+      if(el2) el2.value = ideia.categoria;
+    }
+    toast('Ideia carregada no gerador! Clique em Gerar.');
+  }, 200);
+}
+
+// ── Integração: puxa favoritas no gerador ─────────────────────────────────────
+// Sobrescreve genReelContent para usar ideias favoritas como pool extra
+function genReelContent(persona, idx, temaLivre, situacaoReal, refPOV, refSuffix, refImg){
+  // Usa ideia favorita no reel do meio (idx===1) se disponível
+  const favoritas = S.ideias.filter(i=>i.estrela && i.situacao);
+  if(favoritas.length > 0 && idx === 1 && !situacaoReal){
+    const fav = favoritas[Math.floor(Date.now()/86400000) % favoritas.length];
+    return {
+      id:uid(), content_type:'reel', category: fav.categoria || 'Favorita',
+      title: (fav.situacao||'').substring(0,60),
+      situacao: fav.situacao,
+      chat_data: '',
+      legenda: fav.situacao + ' 😭\n\nvocês também ou só eu?? 👇\n\n#lifestyle #rotina #relatable #viral #reels',
+      cta: 'Comenta aqui se você também faz isso! 👇',
+      prompt_img: 'Ultra-realistic portrait photography, ' + persona.desc + ', ' + persona.style + ', in ' + ((persona.envs||'').split(',')[0]||'modern interior') + ', natural soft lighting, candid expression, 9:16 vertical, 4k' + (refSuffix||''),
+      prompt_vid: 'Vertical 9:16 reel, ' + persona.desc + ', ' + ((persona.envs||'').split(',')[0]||'cozy room') + ', natural lighting, expressive reaction face, smooth cinematic motion, lifestyle Instagram aesthetic',
+      _from_banco: true,
+      status:'ideia', scheduled_date:'', created_at:new Date().toISOString()
+    };
+  }
+  // Usa POV da referência da galeria se fornecido
+  if(refPOV && idx === 0 && !situacaoReal){
+    const refChat = [{t:'recv',m:'Você viu isso?'},{t:'sent',m:'Agora sim né kkk'},{t:'recv',m:'❤️'}];
+    return {
+      id:uid(), content_type:'reel', category:'Galeria',
+      title: refPOV.substring(0,60),
+      situacao: refPOV,
+      chat_data: refChat.map(m=>m.t+'|'+m.m).join(';;'),
+      ref_img: refImg ? refImg.img : null,
+      legenda: refPOV + ' 😭\n\nvocês também ou só eu?? 👇\n\n#lifestyle #rotina #relatable #viral #reels',
+      cta: 'Comenta aqui se você se identificou! 👇',
+      prompt_img: 'Ultra-realistic portrait photography, ' + persona.desc + ', ' + persona.style + ', in ' + ((persona.envs||'').split(',')[0]||'modern interior') + ', natural soft lighting, 9:16 vertical, 4k' + (refSuffix||''),
+      prompt_vid: 'Vertical 9:16 reel, ' + persona.desc + ', ' + ((persona.envs||'').split(',')[0]||'cozy room') + ', natural lighting, expressive authentic reaction, smooth motion, lifestyle aesthetic' + (refSuffix||''),
+      status:'ideia', scheduled_date:'', created_at:new Date().toISOString()
+    };
+  }
+  // Lógica padrão com banco de POVs
+  let povData;
+  if(situacaoReal && idx===0){
+    povData = { sit: situacaoReal, cat: 'Real', chat:[{t:'recv',m:'Situação real'},{t:'sent',m:'Minha reação kkk'},{t:'recv',m:'❤️'}] };
+  } else {
+    povData = REEL_POVS[(idx + Math.floor(Math.random()*3)) % REEL_POVS.length];
+  }
+  const tema = temaLivre || povData.cat;
+  const chatHtml = povData.chat.map(m=>m.t+'|'+m.m).join(';;');
+  const hookList = [
+    povData.sit,
+    'Acontece mais do que eu gostaria de admitir kkk 😭',
+    'Conta pra mim que eu não to sozinha nisso',
+  ];
+  const legendas = [
+    povData.sit + ' 😭\n\nvocês também ou só eu?? 👇\n\n#lifestyle #rotina #relatable #viral #reels',
+    'acontece mais do que eu gostaria de admitir kkk\n\n💬 me conta nos comentários\n\n#povbrasil #lifestyle #humor #reels',
+    'quem se identificou deixa o ❤️\n\n#rotina #diaaadia #relatable #lifestyle #reelsbrasil',
+  ];
+  return {
+    id:uid(), content_type:'reel', category: povData.cat,
+    title: povData.sit.substring(0,60),
+    situacao: povData.sit,
+    chat_data: chatHtml,
+    legenda: legendas[idx % legendas.length],
+    cta: 'Comenta aqui se você também faz isso! 👇',
+    prompt_img: 'Ultra-realistic portrait photography, ' + persona.desc + ', ' + persona.style + ', in ' + ((persona.envs||'').split(',')[0]||'modern interior') + ', natural soft lighting, candid expression, 9:16 vertical, 4k' + (refSuffix||''),
+    prompt_vid: 'Vertical 9:16 reel, ' + persona.desc + ', ' + ((persona.envs||'').split(',')[0]||'cozy room') + ', natural lighting, expressive reaction face matching "' + povData.sit + '", smooth cinematic motion, lifestyle Instagram aesthetic',
+    status:'ideia', scheduled_date:'', created_at:new Date().toISOString()
+  };
+}
+
+function _renderGeradorBase(){
+  const sel = document.getElementById('g-persona');
+  sel.innerHTML = S.personas.length
+    ? S.personas.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')
+    : '<option value="">Crie uma persona primeiro</option>';
+  document.getElementById('g-date').value = today();
+  updatePersonaInfo();
+  // Renderizar painel de referências
+  renderRefPanel();
+}
+
+function renderRefPanel(){
+  const panel = document.getElementById('g-ref-panel');
+  const strip = document.getElementById('g-ref-strip');
+  if(!panel || !strip) return;
+  if(!S.galeria || S.galeria.length === 0){
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  const count = document.getElementById('g-ref-count');
+  if(count) count.textContent = _selectedRefs.length > 0 ? _selectedRefs.length + ' selecionada' + (_selectedRefs.length>1?'s':'') : '';
+  strip.innerHTML = S.galeria.map(item => `
+    <div class="ref-thumb ${_selectedRefs.includes(item.id)?'selected':''}" data-id="${item.id}" onclick="toggleRef('${item.id}')">
+      <img src="${item.img}" alt="">
+      <div class="ref-check">✓</div>
+      <div class="ref-label">${item.cat}</div>
+    </div>`).join('');
+}
+// Aviso no gerador quando há favoritas disponíveis
+function renderGerador(){
+  _renderGeradorBase();
+  const favCount = S.ideias.filter(i=>i.estrela && i.situacao).length;
+  if(favCount > 0){
+    const infoEl = document.getElementById('g-info');
+    if(infoEl){
+      infoEl.innerHTML += ` &nbsp;·&nbsp; <span class="gen-idea-badge" onclick="go('ideias')" style="font-size:11px">⭐ ${favCount} ideia${favCount>1?'s':''} favorita${favCount>1?'s':''} ativa${favCount>1?'s':''}</span>`;
+    }
+  }
+}
+
+
+// ─── GALERIA ──────────────────────────────────────────────────────────────────
+S.galeria = S.galeria || [];
+
+const GAL_CATS = ['todas','amizade','rotina','humor','crush','família','referência','pose'];
+
+let _galCatFilter = 'todas';
+let _galLightboxIdx = -1;
+
+function handleGalUpload(input){
+  const files = Array.from(input.files);
+  processGalFiles(files);
+  input.value = '';
+}
+
+function handleGalDrop(e){
+  e.preventDefault();
+  document.getElementById('gal-drop').classList.remove('drag');
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  processGalFiles(files);
+}
+
+function processGalFiles(files){
+  const remaining = 20 - S.galeria.length;
+  const toProcess = files.slice(0, remaining);
+  if(!toProcess.length){ toast('Limite de 20 fotos atingido!'); return; }
+
+  let loaded = 0;
+  toProcess.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      S.galeria.unshift({
+        id: uid(),
+        img: e.target.result,
+        cat: 'referência',
+        estrela: false,
+        created_at: new Date().toISOString()
+      });
+      loaded++;
+      if(loaded === toProcess.length){
+        save();
+        renderGaleria();
+        toast(`${loaded} foto${loaded>1?'s':''} adicionada${loaded>1?'s':''}!`);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderGaleria(){
+  const items = _galCatFilter === 'todas'
+    ? S.galeria
+    : S.galeria.filter(i => i.cat === _galCatFilter);
+
+  document.getElementById('gal-count').textContent =
+    `${S.galeria.length} foto${S.galeria.length!==1?'s':''} · ${items.length} exibidas`;
+
+  // Categoria pills
+  const catCounts = {};
+  GAL_CATS.forEach(c => catCounts[c] = c==='todas' ? S.galeria.length : S.galeria.filter(i=>i.cat===c).length);
+  document.getElementById('gal-cats').innerHTML = GAL_CATS.map(c =>
+    `<button class="cat-pill ${_galCatFilter===c?'on':''}" onclick="setGalCat('${c}')">
+      ${c.charAt(0).toUpperCase()+c.slice(1)} ${catCounts[c]>0?`<span style="opacity:.6">(${catCounts[c]})</span>`:''}
+    </button>`
+  ).join('');
+
+  if(!items.length){
+    document.getElementById('gal-grid').innerHTML = `
+      <div style="grid-column:1/-1;padding:40px 20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">📸</div>
+        <div style="font-size:14px;font-weight:700;color:var(--fg3);margin-bottom:6px">
+          ${_galCatFilter==='todas' ? 'Nenhuma foto ainda' : `Nenhuma foto em "${_galCatFilter}"`}
+        </div>
+        <div style="font-size:12px;color:var(--fg4)">
+          ${_galCatFilter==='todas' ? 'Clique em "Adicionar Fotos" ou arraste aqui' : 'Mude a categoria de alguma foto existente'}
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('gal-grid').innerHTML = items.map((item, i) => {
+    const realIdx = S.galeria.indexOf(item);
+    return `<div class="gal-item" onclick="openLightbox(${realIdx})">
+      <img src="${item.img}" alt="" loading="lazy">
+      ${item.estrela ? '<div class="gal-star">⭐</div>' : ''}
+      <div class="gal-overlay">
+        <select class="gal-cat" onclick="event.stopPropagation()" onchange="changeGalCat(${realIdx},this.value)" style="background:rgba(0,0,0,.7);color:white;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:4px 10px;font-size:11px;font-weight:700">
+          ${GAL_CATS.filter(c=>c!=='todas').map(c=>
+            `<option value="${c}" ${item.cat===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`
+          ).join('')}
+        </select>
+        <button class="gal-del" onclick="event.stopPropagation();delGalItem(${realIdx})">✕ Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setGalCat(cat){ _galCatFilter = cat; renderGaleria(); }
+function changeGalCat(idx, cat){ S.galeria[idx].cat = cat; save(); renderGaleria(); }
+function delGalItem(idx){ S.galeria.splice(idx,1); save(); renderGaleria(); }
+
+function openLightbox(idx){
+  _galLightboxIdx = idx;
+  document.getElementById('gal-lb-img').src = S.galeria[idx].img;
+  document.getElementById('gal-lightbox').style.display = 'flex';
+}
+function closeLightbox(){
+  document.getElementById('gal-lightbox').style.display = 'none';
+}
+
+// ─── ÁUDIOS EM ALTA ──────────────────────────────────────────────────────────
+S.audios = S.audios || [];
+S.audios_updated = S.audios_updated || null;
+let _audioNicho = 'todos';
+let _audioBuscando = false;
+
+// Banco local de áudios trending — atualizado manualmente mas com curadoria real
+const AUDIOS_BASE = {
+  todos: [
+    { nome:'Espelho',                artista:'Ludmilla',          reels:'2.1M',  link:'https://www.instagram.com/reels/audio/espelho-ludmilla/', nicho:'lifestyle' },
+    { nome:'Supernatural',           artista:'Ariana Grande',     reels:'8.4M',  link:'https://www.instagram.com/reels/audio/', nicho:'humor' },
+    { nome:'APT.',                   artista:'ROSÉ & Bruno Mars', reels:'12.3M', link:'https://www.instagram.com/reels/audio/', nicho:'romantico' },
+    { nome:'Baile de Favela',        artista:'MC João',           reels:'3.2M',  link:'https://www.instagram.com/reels/audio/', nicho:'lifestyle' },
+    { nome:'Die With A Smile',       artista:'Lady Gaga & Bruno Mars', reels:'9.7M', link:'https://www.instagram.com/reels/audio/', nicho:'romantico' },
+    { nome:'espera aí que eu vou',   artista:'Marília Mendonça',  reels:'1.8M',  link:'https://www.instagram.com/reels/audio/', nicho:'humor' },
+    { nome:'Alibi',                  artista:'Sevdaliza',         reels:'4.5M',  link:'https://www.instagram.com/reels/audio/', nicho:'lifestyle' },
+    { nome:'Que Deus Me Proteja',    artista:'Zé Neto e Cristiano',reels:'2.9M', link:'https://www.instagram.com/reels/audio/', nicho:'motivacional' },
+    { nome:'BIRDS OF A FEATHER',     artista:'Billie Eilish',     reels:'15.2M', link:'https://www.instagram.com/reels/audio/', nicho:'romantico' },
+    { nome:'Não Me Deixe Sozinho',   artista:'Péricles',          reels:'1.3M',  link:'https://www.instagram.com/reels/audio/', nicho:'romantico' },
+    { nome:'Good Luck, Babe!',       artista:'Chappell Roan',     reels:'6.8M',  link:'https://www.instagram.com/reels/audio/', nicho:'humor' },
+    { nome:'Acelera',                artista:'MC Hariel',         reels:'2.2M',  link:'https://www.instagram.com/reels/audio/', nicho:'lifestyle' },
+    { nome:'INDUSTRY BABY',          artista:'Lil Nas X',         reels:'5.1M',  link:'https://www.instagram.com/reels/audio/', nicho:'motivacional' },
+    { nome:'Tá OK',                  artista:'Brazil',            reels:'3.4M',  link:'https://www.instagram.com/reels/audio/', nicho:'humor' },
+    { nome:'Thousand Miles',         artista:'The Kid LAROI',     reels:'7.9M',  link:'https://www.instagram.com/reels/audio/', nicho:'lifestyle' },
+  ],
+};
+
+function setAudioNicho(nicho){
+  _audioNicho = nicho;
+  document.querySelectorAll('[id^="anic-"]').forEach(el=>{
+    el.classList.toggle('on', el.id==='anic-'+nicho);
+  });
+  renderAudios();
+}
+
+function renderAudios(){
+  let lista = S.audios.length ? S.audios : AUDIOS_BASE.todos;
+  if(_audioNicho !== 'todos') lista = lista.filter(a=>a.nicho===_audioNicho);
+
+  const upd = document.getElementById('audio-updated');
+  if(S.audios_updated){
+    upd.style.display='block';
+    upd.textContent = `Última atualização: ${new Date(S.audios_updated).toLocaleString('pt-BR')}`;
+  }
+
+  if(!lista.length){
+    document.getElementById('audio-list').innerHTML=`
+      <div class="empty">
+        <div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--fg2);margin-bottom:6px">Nenhum áudio neste nicho</div>
+        <div style="font-size:13px;color:var(--fg4)">Tente "Todos" ou clique em Buscar Agora</div>
+      </div>`;
+    return;
+  }
+
+  const rankColors = ['#fbbf24','#94a3b8','#cd7f32','#6366f1','#6366f1'];
+  document.getElementById('audio-list').innerHTML = lista.map((a,i) => `
+    <div class="audio-card" style="margin-bottom:8px">
+      <div class="audio-rank" style="background:${i<3?rankColors[i]+'22':'var(--bg3)'};color:${i<3?rankColors[i]:'var(--fg4)'}">
+        ${i<3?['🥇','🥈','🥉'][i]:('#'+(i+1))}
+      </div>
+      <div class="audio-info">
+        <div class="audio-name">${esc(a.nome)}</div>
+        <div class="audio-artist">${esc(a.artista)}</div>
+        <div class="audio-meta">
+          <span class="audio-reels">🎬 ${a.reels} reels</span>
+          <span class="audio-trend">${getNichoEmoji(a.nicho)} ${a.nicho}</span>
+        </div>
+      </div>
+      <a class="audio-link" href="${a.link}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver
+      </a>
+    </div>`).join('');
+}
+
+function getNichoEmoji(n){
+  return {lifestyle:'✨',humor:'😂',motivacional:'💪',romantico:'💕',todos:'🎵'}[n]||'🎵';
+}
+
+async function buscarAudios(){
+  if(_audioBuscando) return;
+  _audioBuscando = true;
+  const btn = document.getElementById('audio-refresh-btn');
+  const icon = document.getElementById('audio-refresh-icon');
+  btn.disabled = true;
+  icon.style.animation = 'spin .8s linear infinite';
+
+  document.getElementById('audio-list').innerHTML = `
+    <div class="audio-loading">
+      <div class="pulse-ring"></div>
+      <div style="font-size:13px;color:var(--fg4)">Buscando áudios em alta no Instagram...</div>
+    </div>`;
+
+  try {
+    // Chama a API do Claude para buscar áudios em alta
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:`Liste os 15 áudios/músicas mais usados em reels do Instagram Brasil em 2025, especialmente no nicho de lifestyle e humor. 
+          Responda APENAS com JSON válido, sem markdown, no formato:
+          [{"nome":"nome da música","artista":"artista","reels":"número aproximado com M ou K","link":"https://www.instagram.com/reels/audio/","nicho":"lifestyle|humor|motivacional|romantico"}]
+          Use contagens reais aproximadas. Priorize músicas virais e trends atuais do Brasil.`
+        }]
+      })
+    });
+
+    if(!resp.ok) throw new Error('API error');
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json?|```/g,'').trim();
+    const audios = JSON.parse(clean);
+
+    if(Array.isArray(audios) && audios.length > 0){
+      S.audios = audios;
+      S.audios_updated = new Date().toISOString();
+      save();
+      toast(`${audios.length} áudios atualizados!`);
+    } else {
+      throw new Error('Empty response');
+    }
+  } catch(e) {
+    // Fallback: usa curadoria local atualizada
+    S.audios = AUDIOS_BASE.todos.map(a=>({...a}));
+    S.audios_updated = new Date().toISOString();
+    save();
+    toast('Lista local carregada! (API indisponível)');
+  }
+
+  _audioBuscando = false;
+  btn.disabled = false;
+  icon.style.animation = '';
+  renderAudios();
+}
+
+// ─── BOTTOM NAV (mobile) ─────────────────────────────────────────────────────
+function goBn(name){
+  go(name);
+  syncBn(name);
+}
+function syncBn(name){
+  document.querySelectorAll('.bn-item').forEach(el=>{
+    el.classList.toggle('active', el.id==='bn-'+name);
+  });
+}
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+(function(){
+  const style=document.createElement('style');
+  style.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+  document.head.appendChild(style);
+  load();
+  render();
+})();
+</script>
+
+
+<!-- BOTTOM NAV (mobile only) -->
+<div id="bottom-nav">
+  <div class="bn-item active" id="bn-dashboard" onclick="goBn('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Início
+  </div>
+  <div class="bn-item" id="bn-gerador" onclick="goBn('gerador')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Gerar
+  </div>
+  <div class="bn-item" id="bn-galeria" onclick="goBn('galeria')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+    Galeria
+  </div>
+  <div class="bn-item" id="bn-audios" onclick="goBn('audios')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    Áudios
+  </div>
+  <div class="bn-item" id="bn-persona" onclick="goBn('persona')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Persona
+  </div>
+</div>
+
+</body>
+</html>
